@@ -1,55 +1,48 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import React, { useRef, useState } from 'react';
-import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import { NavigationIndependentTree } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import PushupTrain from '../pushup_train';
 
-export default function HomeScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState<'front' | 'back'>('front');
-  const cameraRef = useRef<CameraView | null>(null);
+const Stack = createStackNavigator();
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      try {
-        const photo = await cameraRef.current.takePictureAsync();
-        Alert.alert('Photo Taken!', `URI: ${photo?.uri}`);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to take picture');
-      }
-    }
-  };
-
-  const toggleCameraFacing = () => {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  };
-
-  if (!permission) {
-    // Camera permissions are still loading
-    return <View style={styles.container}><Text>Loading...</Text></View>;
-  }
-
-  if (!permission.granted) {
-    // Camera permissions are not granted yet
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant Permission" />
-      </View>
-    );
-  }
-
+function Dashboard({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
-      <CameraView 
-        style={styles.camera} 
-        facing={facing}
-        ref={cameraRef}
-      >
-        <View style={styles.buttonContainer}>
-          <Button title="Take Selfie 📸" onPress={takePicture} />
-          <Button title="Flip Camera 🔄" onPress={toggleCameraFacing} />
-        </View>
-      </CameraView>
+      <Text style={styles.welcome}>Welcome to the Fitness App!</Text>
+      <Text style={styles.message}>Get ready to achieve your fitness goals.</Text>
+      <Button
+        title="Start Workout Session"
+        onPress={() => navigation.navigate('Workouts')}
+      />
     </View>
+  );
+}
+
+function Workouts({ navigation }: { navigation: any }) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Workouts</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('PushupTrain')}>
+        <Text style={styles.workout}>- Pushups</Text>
+      </TouchableOpacity>
+      <Text style={styles.workout}>- Russian Twists</Text>
+      <Text style={styles.workout}>- Squats</Text>
+      <Text style={styles.workout}>- Plank</Text>
+      <Text style={styles.workout}>- Burpees</Text>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationIndependentTree>
+      <Stack.Navigator initialRouteName="Dashboard">
+        <Stack.Screen name="Dashboard" component={Dashboard} />
+        <Stack.Screen name="Workouts" component={Workouts} />
+        <Stack.Screen name="PushupTrain" component={PushupTrain} />
+      </Stack.Navigator>
+    </NavigationIndependentTree>
   );
 }
 
@@ -57,20 +50,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 20,
+  },
+  welcome: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   message: {
+    fontSize: 16,
+    marginBottom: 20,
     textAlign: 'center',
-    paddingBottom: 10,
+    color: '#555',
   },
-  camera: {
-    flex: 1,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
+  workout: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'blue',
   },
 });
