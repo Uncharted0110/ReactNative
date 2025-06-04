@@ -1,6 +1,16 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -25,58 +35,59 @@ export default function PushupStepsSheet({
     >
       <View style={styles.overlay}>
         <View style={styles.sheet}>
-          {/* Add image above instructions */}
-          <Image
-            source={require('../assets/pushup_steps.png')}
-            style={styles.pushupImage}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>Instructions</Text>
-          <View style={styles.steps}>
-            <Text style={styles.step}>1. Start in a high plank position with your hands flat on the floor, shoulder-width apart.</Text>
-            <Text style={styles.step}>2. Keep your body in a straight line from head to heels.</Text>
-            <Text style={styles.step}>3. Lower your body until your chest nearly touches the floor.</Text>
-            <Text style={styles.step}>4. Pause, then push yourself back up to the starting position.</Text>
-            <Text style={styles.step}>5. Repeat for the desired number of repetitions.</Text>
-          </View>
-          <View style={styles.optionsSection}>
-            <Text style={styles.optionsLabel}>Targeted reps each set:</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={targetReps}
-              onChangeText={setTargetReps}
-              maxLength={3}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Image
+              source={require('../assets/pushup_steps.png')}
+              style={styles.pushupImage}
+              resizeMode="contain"
             />
-            <Text style={styles.optionsLabel}>Number of sets:</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={numSets}
-              onChangeText={setNumSets}
-              maxLength={2}
-            />
-            <Text style={styles.optionsLabel}>Break time (seconds):</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={breakTime}
-              onChangeText={setBreakTime}
-              maxLength={3}
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.startButton}
-            onPress={() => {
-              onClose();
-              router.push('/pushup_train');
-            }}
-          >
-            <Text style={styles.startButtonText}>Start Pushup Training</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>Close</Text>
-          </TouchableOpacity>
+            <Text style={styles.title}>Instructions</Text>
+            <View style={styles.steps}>
+              <Text style={styles.step}>1. Start in a high plank position with your hands flat on the floor, shoulder-width apart.</Text>
+              <Text style={styles.step}>2. Keep your body in a straight line from head to heels.</Text>
+              <Text style={styles.step}>3. Lower your body until your chest nearly touches the floor.</Text>
+              <Text style={styles.step}>4. Pause, then push yourself back up to the starting position.</Text>
+              <Text style={styles.step}>5. Repeat for the desired number of repetitions.</Text>
+            </View>
+            <View style={styles.optionsSection}>
+              <Text style={styles.optionsLabel}>Targeted reps each set:</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={targetReps}
+                onChangeText={setTargetReps}
+                maxLength={3}
+              />
+              <Text style={styles.optionsLabel}>Number of sets:</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={numSets}
+                onChangeText={setNumSets}
+                maxLength={2}
+              />
+              <Text style={styles.optionsLabel}>Break time (seconds):</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={breakTime}
+                onChangeText={setBreakTime}
+                maxLength={3}
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={() => {
+                onClose();
+                router.push('/pushup_train');
+              }}
+            >
+              <Text style={styles.startButtonText}>Start Pushup Training</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -94,7 +105,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
-    minHeight: height * 0.5,
+    maxHeight: height * 0.9, // allow scrolling if needed
   },
   title: {
     fontSize: 22,
@@ -135,6 +146,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 10,
     marginTop: 10,
+    marginBottom: 20,
   },
   closeText: {
     color: '#fff',
@@ -146,7 +158,7 @@ const styles = StyleSheet.create({
     height: 140,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: '#fff4e6', // Slight orange background
+    backgroundColor: '#fff4e6',
   },
   startButton: {
     alignSelf: 'center',

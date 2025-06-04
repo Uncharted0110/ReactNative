@@ -1,10 +1,14 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useLocalSearchParams } from 'expo-router'; // <-- Add this import
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const API_BASE_URL = 'http://192.168.1.5:5000'; // Replace with your computer's IP
 
 export default function PushupTrain() {
+  // --- Get params from navigation ---
+  const { reps, sets, breakTime } = useLocalSearchParams<{ reps?: string; sets?: string; breakTime?: string }>();
+
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -16,7 +20,6 @@ export default function PushupTrain() {
   const intervalRef = useRef<number | null>(null);
   const isCapturingRef = useRef(false); // Prevent overlapping captures
   const [startTime, setStartTime] = useState<number | null>(null);
-
 
   // Initialize session when component mounts
   useEffect(() => {
@@ -221,16 +224,35 @@ export default function PushupTrain() {
     );
   }
 
+  // --- Workout summary UI ---
+  const WorkoutSummary = () => (
+    <View style={styles.summaryContainer}>
+      <View style={styles.summaryItem}>
+        <Text style={styles.summaryLabel}>Target Reps</Text>
+        <Text style={styles.summaryValue}>{reps || 10}</Text>
+      </View>
+      <View style={styles.summaryItem}>
+        <Text style={styles.summaryLabel}>Sets</Text>
+        <Text style={styles.summaryValue}>{sets || 3}</Text>
+      </View>
+      <View style={styles.summaryItem}>
+        <Text style={styles.summaryLabel}>Break (s)</Text>
+        <Text style={styles.summaryValue}>{breakTime || 60}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
+      {/* Show workout summary at the top */}
+      {!isCameraOpen && <WorkoutSummary />}
       {isCameraOpen ? (
         <CameraView
           style={styles.camera}
           facing="front"
           ref={cameraRef}
-          // Add these props to optimize camera performance
-          animateShutter={false}  // Disable shutter animation
-          enableTorch={false}     // Ensure torch is off
+          animateShutter={false}
+          enableTorch={false}
         >
           <View style={styles.overlay}>
             {/* Connection status */}
@@ -279,7 +301,6 @@ export default function PushupTrain() {
               >
                 <Text style={styles.buttonText}>Close</Text>
               </TouchableOpacity>
-              {/* Removed End Workout button */}
             </View>
           </View>
         </CameraView>
@@ -310,15 +331,44 @@ export default function PushupTrain() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#f5f5f5',
+    // Remove alignItems/justifyContent so content can scroll if needed
     padding: 20,
+  },
+  summaryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff4e6',
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginBottom: 18,
+    marginTop: 10,
+    elevation: 2,
+    shadowColor: '#ff6b35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  summaryItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#ff6b35',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  summaryValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
     color: '#333',
   },
@@ -326,13 +376,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#555',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   connectionStatus: {
     fontSize: 14,
     textAlign: 'center',
     color: '#666',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   camera: {
     flex: 1,
@@ -404,6 +454,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 20,
+    marginTop: 10,
   },
   button: {
     backgroundColor: '#007AFF',
