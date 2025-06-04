@@ -4,7 +4,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext, useState } from 'react';
 import {
   Alert,
+  Animated,
   Dimensions,
+  Easing,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,25 +16,37 @@ import {
 import { UserContext } from '../_layout';
 import PushupTrain from '../pushup_train';
 import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom sheet component
+import TwistsStepsSheet from '../TwistsStepsSheet';
 
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
 
 function Dashboard({ navigation }: { navigation: any }) {
-  // Sample workout data - replace with real data from your app
-  const [workoutData, setWorkoutData] = useState<Record<number, number>>({
-    1: 2, 2: 0, 3: 1, 4: 3, 5: 1, 6: 0, 7: 2,
-    8: 1, 9: 2, 10: 0, 11: 1, 12: 3, 13: 2, 14: 1,
-    15: 0, 16: 2, 17: 1, 18: 3, 19: 0, 20: 1, 21: 2,
-    22: 1, 23: 0, 24: 2, 25: 3, 26: 1, 27: 0, 28: 2,
-    29: 1, 30: 2, 31: 0
-  });
-
-  const { email, username } = useContext(UserContext);
-
   // State for dynamic stats
+  const [workoutData, setWorkoutData] = useState<Record<number, number>>({});
+  const [loading, setLoading] = useState(true);
+  const { email, username } = useContext(UserContext);
   const [totalSessions, setTotalSessions] = useState<number>(0);
   const [activeDays, setActiveDays] = useState<number>(0);
+  const [showWorkoutData, setShowWorkoutData] = useState(false);
+  const [stickmanAnim] = useState(new Animated.Value(0));
+
+  // Stickman animation effect
+  React.useEffect(() => {
+    if (loading) {
+      Animated.loop(
+        Animated.timing(stickmanAnim, {
+          toValue: 1,
+          duration: 1200,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ).start();
+    } else {
+      stickmanAnim.stopAnimation();
+      stickmanAnim.setValue(0);
+    }
+  }, [loading]);
 
   // Fetch workout summary from backend
   const fetchWorkoutSummary = async () => {
@@ -53,9 +67,56 @@ function Dashboard({ navigation }: { navigation: any }) {
     }
   };
 
-  // Fetch summary on mount and when email changes
+  // Fetch all days' total reps for the current month
+  const fetchAllDaysWorkoutData = async () => {
+    if (!email) return;
+    setLoading(true);
+    const currentDate = new Date();
+    const yyyy = currentDate.getFullYear();
+    const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const daysInMonth = new Date(yyyy, currentDate.getMonth() + 1, 0).getDate();
+    const newWorkoutData: Record<number, number> = {};
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dd = String(day).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      try {
+        const res = await fetch(
+          `http://192.168.1.5:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          newWorkoutData[day] = 0;
+          continue;
+        }
+        const data = await res.json();
+        
+        // Combine all reps for the day (use total_reps, not reps)
+        if (res.ok && data.summary && Array.isArray(data.summary) && data.summary.length > 0) {
+          const totalReps = data.summary.reduce(
+            (sum: number, workout: { total_reps?: number }) => sum + (workout.total_reps || 0),
+            0
+          );
+          newWorkoutData[day] = totalReps;
+        } else {
+          newWorkoutData[day] = 0;
+        }
+      } catch (err) {
+        newWorkoutData[day] = 0;
+      }
+    }
+    setWorkoutData(newWorkoutData);
+    setLoading(false);
+  };
+
+  // Fetch summary and daily reps on mount and when email changes
   React.useEffect(() => {
     fetchWorkoutSummary();
+    fetchAllDaysWorkoutData();
   }, [email]);
 
   // Fetch workout details for a specific date
@@ -111,10 +172,10 @@ function Dashboard({ navigation }: { navigation: any }) {
   };
 
   const getIntensityColor = (workoutCount: number) => {
-    if (workoutCount === 0) return '#e8e8e8';
-    if (workoutCount === 1) return '#ffcc80';
-    if (workoutCount === 2) return '#ff9800';
-    if (workoutCount >= 3) return '#f57c00';
+    if (workoutCount === 0) return '#e8e8e8';         // No workout
+    if (workoutCount <= 20) return '#ffcc80';          // Light: 1-20 reps
+    if (workoutCount <= 55) return '#ff9800';          // Moderate: 21-55 reps
+    if (workoutCount > 55) return '#f57c00';           // Intense: 56+ reps
     return '#e8e8e8';
   };
 
@@ -145,6 +206,47 @@ function Dashboard({ navigation }: { navigation: any }) {
 
     return days;
   };
+
+  if (loading) {
+    // Simple stickman SVG animation
+    const rotate = stickmanAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['-10deg', '10deg'],
+    });
+
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+        <Animated.View style={{ transform: [{ rotate }], marginBottom: 24 }}>
+          {/* Stickman SVG (simple lines and circles) */}
+          <View style={{ alignItems: 'center' }}>
+            {/* Head */}
+            <View style={{
+              width: 32, height: 32, borderRadius: 16, borderWidth: 3, borderColor: '#555', backgroundColor: '#fff'
+            }} />
+            {/* Body */}
+            <View style={{
+              width: 4, height: 40, backgroundColor: '#555', marginTop: -2
+            }} />
+            {/* Arms */}
+            <View style={{
+              flexDirection: 'row', width: 44, justifyContent: 'space-between', marginTop: -32
+            }}>
+              <View style={{ width: 24, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '-30deg' }] }} />
+              <View style={{ width: 24, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '30deg' }] }} />
+            </View>
+            {/* Legs */}
+            <View style={{
+              flexDirection: 'row', width: 36, justifyContent: 'space-between', marginTop: 8
+            }}>
+              <View style={{ width: 18, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '30deg' }] }} />
+              <View style={{ width: 18, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '-30deg' }] }} />
+            </View>
+          </View>
+        </Animated.View>
+        <Text style={{ fontSize: 18, color: '#888' }}>Loading workout data...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.scrollContainer}>
@@ -182,6 +284,8 @@ function Dashboard({ navigation }: { navigation: any }) {
             </View>
           </View>
 
+          
+
           {/* Calendar Grid */}
           <View style={styles.calendarContainer}>
             <View style={styles.calendarGrid}>
@@ -199,15 +303,15 @@ function Dashboard({ navigation }: { navigation: any }) {
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendBox, { backgroundColor: '#ffcc80' }]} />
-                <Text style={styles.legendText}>Light</Text>
+                <Text style={styles.legendText}>Light (1-20 reps)</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendBox, { backgroundColor: '#ff9800' }]} />
-                <Text style={styles.legendText}>Moderate</Text>
+                <Text style={styles.legendText}>Moderate (21-55 reps)</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendBox, { backgroundColor: '#f57c00' }]} />
-                <Text style={styles.legendText}>Intense</Text>
+                <Text style={styles.legendText}>Intense (56+ reps)</Text>
               </View>
             </View>
           </View>
@@ -220,6 +324,7 @@ function Dashboard({ navigation }: { navigation: any }) {
 // New WorkoutSelection page
 function WorkoutSelection({ navigation }: { navigation: any }) {
   const [showPushupSheet, setShowPushupSheet] = useState(false);
+  const [showTwistsSheet, setShowTwistsSheet] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -233,7 +338,7 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => Alert.alert('Coming Soon', 'Russian Twists workout coming soon!')}
+        onPress={() => setShowTwistsSheet(true)}
       >
         <MaterialCommunityIcons name="rotate-3d-variant" size={24} color="#fff" style={styles.iconLeft} />
         <Text style={styles.workoutButtonText}>Russian Twists</Text>
@@ -254,6 +359,9 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
       </TouchableOpacity>
       {showPushupSheet && (
         <PushupStepsSheet visible={showPushupSheet} onClose={() => setShowPushupSheet(false)} />
+      )}
+      {showTwistsSheet && (
+        <TwistsStepsSheet visible={showTwistsSheet} onClose={() => setShowTwistsSheet(false)} />
       )}
     </View>
   );
