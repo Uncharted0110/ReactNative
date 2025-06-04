@@ -35,4 +35,43 @@ app.post('/login', async (req, res) => {
     res.json({ message: 'Login successful' });
 });
 
+// New endpoint to get workout details
+app.get('/workouts/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Group workouts by name and calculate total reps
+    const workoutSummary = {};
+    
+    user.workouts.forEach(workout => {
+      const { workout_name, reps } = workout;
+      if (workoutSummary[workout_name]) {
+        workoutSummary[workout_name] += reps;
+      } else {
+        workoutSummary[workout_name] = reps;
+      }
+    });
+
+    // Convert to array format for easier frontend consumption
+    const workoutDetails = Object.entries(workoutSummary).map(([name, totalReps]) => ({
+      workout_name: name,
+      total_reps: totalReps
+    }));
+
+    res.json({
+      email: user.email,
+      workouts: workoutDetails
+    });
+
+  } catch (error) {
+    console.error('Error fetching workout details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.listen(3000, () => console.log('Server running on port 3000'));

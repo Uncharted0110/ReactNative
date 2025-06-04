@@ -1,6 +1,6 @@
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Dimensions,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { UserContext } from '../_layout';
 import PushupTrain from '../pushup_train';
 
 const Stack = createStackNavigator();
@@ -23,6 +24,8 @@ function Dashboard({ navigation }: { navigation: any }) {
     22: 1, 23: 0, 24: 2, 25: 3, 26: 1, 27: 0, 28: 2,
     29: 1, 30: 2, 31: 0
   });
+
+  const { email } = useContext(UserContext);
 
   const getCurrentMonth = () => {
     const months = [
@@ -77,7 +80,9 @@ function Dashboard({ navigation }: { navigation: any }) {
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>Hi User! 👋</Text>
+            <Text style={styles.greeting}>
+              Hi {email ? email : 'User'}! 👋
+            </Text>
             <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
           </View>
           <TouchableOpacity 

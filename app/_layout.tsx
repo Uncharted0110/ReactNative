@@ -1,9 +1,16 @@
 import { Slot, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+
+// Add UserContext for email
+export const UserContext = createContext<{ email: string | null, setEmail: (email: string | null) => void }>({
+  email: null,
+  setEmail: () => {},
+});
 
 export default function RootLayout() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null = loading
+  const [email, setEmail] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,5 +37,9 @@ export default function RootLayout() {
     );
   }
 
-  return <Slot />;
+  return (
+    <UserContext.Provider value={{ email, setEmail }}>
+      <Slot />
+    </UserContext.Provider>
+  );
 }
