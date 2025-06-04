@@ -37,7 +37,7 @@ export default function TwistsStepsSheet({
         <View style={styles.sheet}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Image
-              source={require('../assets/pushup_steps.png')}
+              source={require('../assets/twists_steps.png')}
               style={styles.twistsImage}
               resizeMode="contain"
             />
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     height: 140,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: '#e6f7ff', // light blue background for twists
+    backgroundColor: '#fff4e6', 
   },
   startButton: {
     alignSelf: 'center',

@@ -1,22 +1,34 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import LottieView from 'lottie-react-native';
 import React, { useContext, useState } from 'react';
 import {
   Alert,
   Animated,
   Dimensions,
   Easing,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+
 import { UserContext } from '../_layout';
+
 import PushupTrain from '../pushup_train';
 import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom sheet component
+
+import TwistsTrain from '../twists_train';
 import TwistsStepsSheet from '../TwistsStepsSheet';
+
+// Define WorkoutSummaryItem type for type safety
+type WorkoutSummaryItem = {
+  workout_name?: string;
+  total_reps?: number;
+};
 
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
@@ -30,6 +42,8 @@ function Dashboard({ navigation }: { navigation: any }) {
   const [activeDays, setActiveDays] = useState<number>(0);
   const [showWorkoutData, setShowWorkoutData] = useState(false);
   const [stickmanAnim] = useState(new Animated.Value(0));
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [overlayData, setOverlayData] = useState<{ date: string, summary: any[] } | null>(null);
 
   // Stickman animation effect
   React.useEffect(() => {
@@ -94,7 +108,7 @@ function Dashboard({ navigation }: { navigation: any }) {
           continue;
         }
         const data = await res.json();
-        
+
         // Combine all reps for the day (use total_reps, not reps)
         if (res.ok && data.summary && Array.isArray(data.summary) && data.summary.length > 0) {
           const totalReps = data.summary.reduce(
@@ -119,8 +133,8 @@ function Dashboard({ navigation }: { navigation: any }) {
     fetchAllDaysWorkoutData();
   }, [email]);
 
-  // Fetch workout details for a specific date
-  const fetchWorkoutDetailsForDate = async (dateStr: string) => {
+  // Fetch workout details for a specific date and show overlay
+  const handleDayPress = async (dateStr: string) => {
     if (!email) {
       Alert.alert('Error', 'No user email found');
       return;
@@ -135,26 +149,16 @@ function Dashboard({ navigation }: { navigation: any }) {
       );
       const contentType = res.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        const text = await res.text();
-        Alert.alert('Error', 'Server did not return JSON:\n' + text);
+        setOverlayData({ date: dateStr, summary: [] });
+        setOverlayVisible(true);
         return;
       }
       const data = await res.json();
-      if (res.ok) {
-        if (!data.summary || data.summary.length === 0) {
-          Alert.alert('Workout Details', `No workouts found for ${dateStr}`);
-        } else {
-          Alert.alert(
-            `Workout Details for ${dateStr}`,
-            JSON.stringify(data.summary, null, 2)
-          );
-        }
-      } else {
-        Alert.alert('Error', data.message || 'Failed to fetch workouts');
-      }
+      setOverlayData({ date: dateStr, summary: Array.isArray(data.summary) ? data.summary : [] });
+      setOverlayVisible(true);
     } catch (err) {
-      console.error('Fetch error:', err);
-      Alert.alert('Error', 'Failed to connect to server');
+      setOverlayData({ date: dateStr, summary: [] });
+      setOverlayVisible(true);
     }
   };
 
@@ -197,7 +201,7 @@ function Dashboard({ navigation }: { navigation: any }) {
         <TouchableOpacity
           key={day}
           style={[styles.dayBox, { backgroundColor: color }]}
-          onPress={() => fetchWorkoutDetailsForDate(dateStr)}
+          onPress={() => handleDayPress(dateStr)}
         >
           <Text style={styles.dayText}>{day}</Text>
         </TouchableOpacity>
@@ -208,42 +212,14 @@ function Dashboard({ navigation }: { navigation: any }) {
   };
 
   if (loading) {
-    // Simple stickman SVG animation
-    const rotate = stickmanAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['-10deg', '10deg'],
-    });
-
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-        <Animated.View style={{ transform: [{ rotate }], marginBottom: 24 }}>
-          {/* Stickman SVG (simple lines and circles) */}
-          <View style={{ alignItems: 'center' }}>
-            {/* Head */}
-            <View style={{
-              width: 32, height: 32, borderRadius: 16, borderWidth: 3, borderColor: '#555', backgroundColor: '#fff'
-            }} />
-            {/* Body */}
-            <View style={{
-              width: 4, height: 40, backgroundColor: '#555', marginTop: -2
-            }} />
-            {/* Arms */}
-            <View style={{
-              flexDirection: 'row', width: 44, justifyContent: 'space-between', marginTop: -32
-            }}>
-              <View style={{ width: 24, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '-30deg' }] }} />
-              <View style={{ width: 24, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '30deg' }] }} />
-            </View>
-            {/* Legs */}
-            <View style={{
-              flexDirection: 'row', width: 36, justifyContent: 'space-between', marginTop: 8
-            }}>
-              <View style={{ width: 18, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '30deg' }] }} />
-              <View style={{ width: 18, height: 4, backgroundColor: '#555', borderRadius: 2, transform: [{ rotate: '-30deg' }] }} />
-            </View>
-          </View>
-        </Animated.View>
-        <Text style={{ fontSize: 18, color: '#888' }}>Loading workout data...</Text>
+        <LottieView
+          source={require('../../assets/bottle.json')}
+          autoPlay
+          loop
+          style={{ width: 200, height: 200 }}
+        />
       </View>
     );
   }
@@ -284,7 +260,7 @@ function Dashboard({ navigation }: { navigation: any }) {
             </View>
           </View>
 
-          
+
 
           {/* Calendar Grid */}
           <View style={styles.calendarContainer}>
@@ -293,29 +269,82 @@ function Dashboard({ navigation }: { navigation: any }) {
             </View>
           </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <Text style={styles.legendTitle}>Workout Intensity</Text>
-            <View style={styles.legendRow}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#e8e8e8' }]} />
-                <Text style={styles.legendText}>No workout</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#ffcc80' }]} />
-                <Text style={styles.legendText}>Light (1-20 reps)</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#ff9800' }]} />
-                <Text style={styles.legendText}>Moderate (21-55 reps)</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#f57c00' }]} />
-                <Text style={styles.legendText}>Intense (56+ reps)</Text>
-              </View>
+
+        </View>
+
+        {/* Overlay for workout details */}
+        {overlayVisible && (
+          <View style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.55)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 100,
+          }}>
+            <View style={{
+              backgroundColor: '#fff',
+              borderRadius: 18,
+              padding: 24,
+              width: '85%',
+              maxWidth: 350,
+              alignItems: 'center',
+              elevation: 8,
+            }}>
+              {overlayData && overlayData.summary.length > 0 ? (
+                overlayData.summary.map((item, idx) => (
+                  <View key={idx} style={{ alignItems: 'center', marginBottom: 16 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                      <Image
+                        source={
+                          item.workout_name === 'pushup'
+                            ? require('../../assets/pushup.png')
+                            : item.workout_name === 'russian twists'
+                              ? require('../../assets/twists.png')
+                              : require('../../assets/pushup_steps.png')
+                        }
+                        style={{
+                          width: 120,
+                          height: 70,
+                          borderRadius: 10,
+                          backgroundColor: '#ffffff',
+                          marginRight: 24, // Increased spacing
+                        }}
+                        resizeMode="contain"
+                      />
+                      <Text style={{ fontSize: 15, color: '#000000' }}>
+                        X {item.total_reps ?? 0}
+                      </Text>
+                    </View>
+
+                    <Text style={{ fontSize: 16, fontWeight: '600' }}>
+                      {(item as WorkoutSummaryItem).workout_name?.replace(/(^|\s)\S/g, (l: string) => l.toUpperCase())}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={{ fontSize: 15, color: '#888', marginVertical: 18 }}>
+                  No workouts found for this day.
+                </Text>
+              )}
+
+              <TouchableOpacity
+                style={{
+                  marginTop: 8,
+                  backgroundColor: '#ff6b35',
+                  borderRadius: 16,
+                  paddingHorizontal: 32,
+                  paddingVertical: 10,
+                }}
+                onPress={() => setOverlayVisible(false)}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        )}
+
+        {/* ...existing code... */}
       </View>
     </ScrollView>
   );
@@ -398,6 +427,7 @@ export default function App() {
         />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="PushupTrain" component={PushupTrain} />
+        <Stack.Screen name="TwistTrain" component={TwistsTrain} />
       </Stack.Navigator>
     </NavigationIndependentTree>
   );
