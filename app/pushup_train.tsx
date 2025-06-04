@@ -14,6 +14,7 @@ export default function PushupTrain() {
   const [sessionId] = useState('user_' + Date.now());
   const cameraRef = useRef<CameraView>(null);
   const intervalRef = useRef<number | null>(null);
+  const isCapturingRef = useRef(false); // Prevent overlapping captures
 
   // Initialize session when component mounts
   useEffect(() => {
@@ -51,46 +52,58 @@ export default function PushupTrain() {
   };
 
   const captureAndAnalyze = async () => {
-    if (cameraRef.current) {
-      try {
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.5, // Adjust quality as needed
-          base64: true, // Ensure base64 encoding
-        });
+    // Prevent overlapping captures
+    if (isCapturingRef.current || !cameraRef.current) {
+      return;
+    }
 
-        console.log(`Photo captured, base64 length: ${photo.base64?.length ?? 0}`);
+    try {
+      isCapturingRef.current = true;
+      setIsAnalyzing(true);
 
-        const response = await fetch(`${API_BASE_URL}/analyze_frame`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            session_id: sessionId,
-            image: photo.base64, // Send the base64-encoded image
-          }),
-        });
+      // Optimized capture settings to reduce flash
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.3, // Lower quality for faster processing
+        base64: true,
+        skipProcessing: true, // Skip post-processing for speed
+        exif: false, // Don't include EXIF data
+      });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Server error:', errorData);
-          return;
-        }
+      console.log(`Photo captured, base64 length: ${photo.base64?.length ?? 0}`);
 
-        const data = await response.json();
-        console.log('Feedback from backend:', data.feedback);
-        setFeedback(data.feedback);
-        setRepCount(data.rep_count);
-      } catch (error) {
-        console.error('Error analyzing frame:', error);
+      const response = await fetch(`${API_BASE_URL}/analyze_frame`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          image: photo.base64,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        return;
       }
+
+      const data = await response.json();
+      console.log('Feedback from backend:', data.feedback);
+      setFeedback(data.feedback);
+      setRepCount(data.rep_count);
+    } catch (error) {
+      console.error('Error analyzing frame:', error);
+    } finally {
+      isCapturingRef.current = false;
+      setIsAnalyzing(false);
     }
   };
 
   const startAnalysis = () => {
     console.log('Starting analysis...');
-    // Capture and analyze frames every 800ms (slightly slower for stability)
-    intervalRef.current = setInterval(captureAndAnalyze, 800);
+    // Increased interval to 1200ms to reduce frequency and flashing
+    intervalRef.current = setInterval(captureAndAnalyze, 1200);
   };
 
   const stopAnalysis = () => {
@@ -99,6 +112,8 @@ export default function PushupTrain() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    isCapturingRef.current = false;
+    setIsAnalyzing(false);
   };
 
   const resetSession = async () => {
@@ -147,8 +162,8 @@ export default function PushupTrain() {
       }
       
       setIsCameraOpen(true);
-      // Start analysis after a short delay to let camera initialize
-      setTimeout(startAnalysis, 1500);
+      // Longer delay to let camera fully initialize
+      setTimeout(startAnalysis, 2000);
     } else {
       stopAnalysis();
       setIsCameraOpen(false);
@@ -182,6 +197,9 @@ export default function PushupTrain() {
           style={styles.camera} 
           facing="front"
           ref={cameraRef}
+          // Add these props to optimize camera performance
+          animateShutter={false}  // Disable shutter animation
+          enableTorch={false}     // Ensure torch is off
         >
           <View style={styles.overlay}>
             {/* Connection status */}
@@ -200,6 +218,13 @@ export default function PushupTrain() {
             <View style={styles.feedbackContainer}>
               <Text style={styles.feedbackText}>{feedback}</Text>
             </View>
+
+            {/* Analysis indicator */}
+            {isAnalyzing && (
+              <View style={styles.analyzingIndicator}>
+                <View style={styles.pulse} />
+              </View>
+            )}
 
             {/* Controls */}
             <View style={styles.controlsContainer}>
@@ -326,6 +351,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  analyzingIndicator: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    width: 12,
+    height: 12,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 6,
+  },
+  pulse: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FF6B6B',
+    opacity: 0.8,
   },
   controlsContainer: {
     flexDirection: 'row',
