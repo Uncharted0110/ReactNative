@@ -2,6 +2,7 @@ import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -27,6 +28,51 @@ function Dashboard({ navigation }: { navigation: any }) {
 
   const { email } = useContext(UserContext);
 
+  const fetchWorkoutDetails = async () => {
+    if (!email) {
+      Alert.alert('Error', 'No user email found');
+      return;
+    }
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    try {
+      const res = await fetch(
+        `http://192.168.1.5:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        Alert.alert('Error', 'Server did not return JSON:\n' + text);
+        return;
+      }
+      const data = await res.json();
+      if (res.ok) {
+        if (!data.summary || data.summary.length === 0) {
+          Alert.alert('Workout Details', `No workouts found for ${dateStr}`);
+        } else {
+          Alert.alert(
+            `Workout Details for ${dateStr}`,
+            JSON.stringify(data.summary, null, 2)
+          );
+        }
+      } else {
+        Alert.alert('Error', data.message || 'Failed to fetch workouts');
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+      Alert.alert('Error', 'Failed to connect to server');
+    }
+  };
+
   const getCurrentMonth = () => {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -51,18 +97,18 @@ function Dashboard({ navigation }: { navigation: any }) {
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth();
     const days = [];
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       const workoutCount = workoutData[day] || 0;
       const color = getIntensityColor(workoutCount);
-      
+
       days.push(
         <View key={day} style={[styles.dayBox, { backgroundColor: color }]}>
           <Text style={styles.dayText}>{day}</Text>
         </View>
       );
     }
-    
+
     return days;
   };
 
@@ -85,19 +131,25 @@ function Dashboard({ navigation }: { navigation: any }) {
             </Text>
             <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.workoutButton}
             onPress={() => navigation.navigate('Workouts')}
           >
             <Text style={styles.workoutButtonText}>Start Workout</Text>
           </TouchableOpacity>
         </View>
-
+        {/* Add button to display workout details */}
+        <TouchableOpacity
+          style={[styles.workoutButton, { marginBottom: 20 }]}
+          onPress={fetchWorkoutDetails}
+        >
+          <Text style={styles.workoutButtonText}>Show My Workout Details</Text>
+        </TouchableOpacity>
         {/* Statistics Section */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
           <Text style={styles.monthTitle}>{getCurrentMonth()} 2024</Text>
-          
+
           {/* Summary Stats */}
           <View style={styles.summaryRow}>
             <View style={styles.statBox}>
@@ -164,9 +216,9 @@ export default function App() {
   return (
     <NavigationIndependentTree>
       <Stack.Navigator initialRouteName="Dashboard">
-        <Stack.Screen 
-          name="Dashboard" 
-          component={Dashboard} 
+        <Stack.Screen
+          name="Dashboard"
+          component={Dashboard}
           options={{ title: 'Fitness Dashboard' }}
         />
         <Stack.Screen name="Workouts" component={Workouts} />
