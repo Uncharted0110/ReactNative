@@ -7,7 +7,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const { setEmail: setContextEmail } = useContext(UserContext);
+  const { setEmail: setContextEmail, setUsername: setContextUsername } = useContext(UserContext);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -24,7 +24,8 @@ export default function LoginScreen() {
       const data = await res.json();
   
       if (res.ok) {
-        setContextEmail(email); // Set email in context
+        setContextEmail(email);
+        setContextUsername(data.username); // Set username in context
         router.replace('/(tabs)');
       } else {
         Alert.alert('Login Failed', data.message || 'Invalid credentials');

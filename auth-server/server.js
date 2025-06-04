@@ -14,12 +14,17 @@ mongoose.connect('mongodb+srv://exercia:Fpd20jbSjavHHM5H@cluster0.qpv0m.mongodb.
 
 app.post('/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    console.log('Trying to sign up with:', email);
+    const { email, password, username } = req.body;
+    if (!email || !password || !username) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+    if (username.length > 10) {
+      return res.status(400).json({ message: 'Username must be at most 10 characters' });
+    }
+    console.log('Trying to sign up with:', username);
     const existing = await User.findOne({ email });
-    console.log('Existing user:', existing);
     if (existing) return res.status(400).json({ message: 'User already exists' });
-    const user = new User({ email, password });
+    const user = new User({ email, password, username });
     await user.save();
     console.log('User created:', user);
     res.json({ message: 'User created' });
@@ -34,7 +39,7 @@ app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email, password });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-    res.json({ message: 'Login successful' });
+    res.json({ message: 'Login successful', username: user.username }); // return username
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });

@@ -26,20 +26,14 @@ function Dashboard({ navigation }: { navigation: any }) {
     29: 1, 30: 2, 31: 0
   });
 
-  const { email } = useContext(UserContext);
+  const { email, username } = useContext(UserContext);
 
-  const fetchWorkoutDetails = async () => {
+  // Fetch workout details for a specific date
+  const fetchWorkoutDetailsForDate = async (dateStr: string) => {
     if (!email) {
       Alert.alert('Error', 'No user email found');
       return;
     }
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const dateStr = `${yyyy}-${mm}-${dd}`;
-
     try {
       const res = await fetch(
         `http://192.168.1.5:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
@@ -94,18 +88,28 @@ function Dashboard({ navigation }: { navigation: any }) {
     return '#e8e8e8';
   };
 
+  // Modified renderCalendar to make each day clickable
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth();
+    const currentDate = new Date();
+    const yyyy = currentDate.getFullYear();
+    const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
     const days = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
       const workoutCount = workoutData[day] || 0;
       const color = getIntensityColor(workoutCount);
+      const dd = String(day).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
 
       days.push(
-        <View key={day} style={[styles.dayBox, { backgroundColor: color }]}>
+        <TouchableOpacity
+          key={day}
+          style={[styles.dayBox, { backgroundColor: color }]}
+          onPress={() => fetchWorkoutDetailsForDate(dateStr)}
+        >
           <Text style={styles.dayText}>{day}</Text>
-        </View>
+        </TouchableOpacity>
       );
     }
 
@@ -127,7 +131,7 @@ function Dashboard({ navigation }: { navigation: any }) {
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
             <Text style={styles.greeting}>
-              Hi {email ? email : 'User'}! 👋
+              Hi {username ? username : 'User'}! 👋
             </Text>
             <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
           </View>
@@ -138,13 +142,7 @@ function Dashboard({ navigation }: { navigation: any }) {
             <Text style={styles.workoutButtonText}>Start Workout</Text>
           </TouchableOpacity>
         </View>
-        {/* Add button to display workout details */}
-        <TouchableOpacity
-          style={[styles.workoutButton, { marginBottom: 20 }]}
-          onPress={fetchWorkoutDetails}
-        >
-          <Text style={styles.workoutButtonText}>Show My Workout Details</Text>
-        </TouchableOpacity>
+
         {/* Statistics Section */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>

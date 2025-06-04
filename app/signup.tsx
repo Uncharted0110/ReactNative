@@ -4,13 +4,18 @@ import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function SignupScreen() {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState(''); // Add username state
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
 
     const handleSignup = async () => {
-        if (!email || !password || !confirmPassword) {
+        if (!email || !username || !password || !confirmPassword) {
             Alert.alert('Error', 'All fields are required');
+            return;
+        }
+        if (username.length > 10) {
+            Alert.alert('Error', 'Username must be at most 10 characters');
             return;
         }
         if (password !== confirmPassword) {
@@ -22,7 +27,7 @@ export default function SignupScreen() {
             const res = await fetch('http://192.168.1.5:3000/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, username }), // send username
             });
             const data = await res.json();
 
@@ -36,7 +41,6 @@ export default function SignupScreen() {
         }
     };
 
-
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Sign Up</Text>
@@ -46,6 +50,14 @@ export default function SignupScreen() {
                 onChangeText={setEmail}
                 style={styles.input}
                 autoCapitalize="none"
+            />
+            <TextInput
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
+                autoCapitalize="none"
+                maxLength={10} // Enforce max length in UI
             />
             <TextInput
                 placeholder="Password"
