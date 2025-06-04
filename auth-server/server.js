@@ -89,6 +89,42 @@ app.get('/api/workouts', async (req, res) => {
   }
 });
 
+app.get('/api/workout-summary', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email }).lean();
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const workouts = user.workouts || [];
+
+    const total_sessions = workouts.length;
+
+    const uniqueDates = new Set(
+      workouts.map(w => new Date(w.date).toISOString().split('T')[0])
+    );
+
+    const active_days = uniqueDates.size;
+
+    res.json({
+      email,
+      total_sessions,
+      active_days
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -28,6 +28,34 @@ function Dashboard({ navigation }: { navigation: any }) {
 
   const { email, username } = useContext(UserContext);
 
+  // State for dynamic stats
+  const [totalSessions, setTotalSessions] = useState<number>(0);
+  const [activeDays, setActiveDays] = useState<number>(0);
+
+  // Fetch workout summary from backend
+  const fetchWorkoutSummary = async () => {
+    if (!email) return;
+    try {
+      const res = await fetch(`http://192.168.1.5:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (res.ok) {
+        setTotalSessions(data.total_sessions || 0);
+        setActiveDays(data.active_days || 0);
+      } else {
+        setTotalSessions(0);
+        setActiveDays(0);
+      }
+    } catch (err) {
+      setTotalSessions(0);
+      setActiveDays(0);
+    }
+  };
+
+  // Fetch summary on mount and when email changes
+  React.useEffect(() => {
+    fetchWorkoutSummary();
+  }, [email]);
+
   // Fetch workout details for a specific date
   const fetchWorkoutDetailsForDate = async (dateStr: string) => {
     if (!email) {
@@ -116,14 +144,6 @@ function Dashboard({ navigation }: { navigation: any }) {
     return days;
   };
 
-  const getTotalWorkouts = () => {
-    return Object.values(workoutData).reduce((sum, count) => sum + count, 0);
-  };
-
-  const getActiveDays = () => {
-    return Object.values(workoutData).filter(count => count > 0).length;
-  };
-
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
@@ -151,11 +171,11 @@ function Dashboard({ navigation }: { navigation: any }) {
           {/* Summary Stats */}
           <View style={styles.summaryRow}>
             <View style={styles.statBox}>
-              <Text style={styles.statNumber}>{getTotalWorkouts()}</Text>
+              <Text style={styles.statNumber}>{totalSessions}</Text>
               <Text style={styles.statLabel}>Total Workouts</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statNumber}>{getActiveDays()}</Text>
+              <Text style={styles.statNumber}>{activeDays}</Text>
               <Text style={styles.statLabel}>Active Days</Text>
             </View>
           </View>
