@@ -15,6 +15,8 @@ export default function PushupTrain() {
   const cameraRef = useRef<CameraView>(null);
   const intervalRef = useRef<number | null>(null);
   const isCapturingRef = useRef(false); // Prevent overlapping captures
+  const [startTime, setStartTime] = useState<number | null>(null);
+
 
   // Initialize session when component mounts
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function PushupTrain() {
   }, []);
 
   const initializeSession = async () => {
+    setStartTime(Date.now());
+
     try {
       setConnectionStatus('Connecting...');
       const response = await fetch(`${API_BASE_URL}/start_session`, {
@@ -36,11 +40,11 @@ export default function PushupTrain() {
         },
         body: JSON.stringify({ session_id: sessionId }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
       console.log('Session initialized:', result);
       setConnectionStatus('Connected');
@@ -125,7 +129,7 @@ export default function PushupTrain() {
         },
         body: JSON.stringify({ session_id: sessionId }),
       });
-      
+
       if (response.ok) {
         setRepCount(0);
         setFeedback('Position yourself for pushup');
@@ -160,14 +164,41 @@ export default function PushupTrain() {
           return;
         }
       }
-      
+
       setIsCameraOpen(true);
       // Longer delay to let camera fully initialize
       setTimeout(startAnalysis, 2000);
     } else {
+      // When closing, end the session as well
+      await endSession();
       stopAnalysis();
       setIsCameraOpen(false);
       setFeedback('Position yourself for pushup');
+    }
+  };
+
+  const endSession = async () => {
+    const endTime = Date.now();
+    const timeTaken = startTime ? Math.floor((endTime - startTime) / 1000) : 0; // in seconds
+    try {
+      const response = await fetch('http://192.168.1.5:5000/end_session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_id: 'adityakl1509@gmail.com', // Make sure you have userId available in your component
+          workout_name: 'pushup',
+          time_taken: timeTaken, // Calculate or track this as needed
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Session ended:', data);
+      } else {
+        console.error('Failed to end session:', data.message);
+      }
+    } catch (err) {
+      console.error('Error ending session:', err);
     }
   };
 
@@ -193,8 +224,8 @@ export default function PushupTrain() {
   return (
     <View style={styles.container}>
       {isCameraOpen ? (
-        <CameraView 
-          style={styles.camera} 
+        <CameraView
+          style={styles.camera}
           facing="front"
           ref={cameraRef}
           // Add these props to optimize camera performance
@@ -228,26 +259,27 @@ export default function PushupTrain() {
 
             {/* Controls */}
             <View style={styles.controlsContainer}>
-              <TouchableOpacity 
-                style={[styles.button, styles.resetButton]} 
+              <TouchableOpacity
+                style={[styles.button, styles.resetButton]}
                 onPress={resetSession}
               >
                 <Text style={styles.buttonText}>Reset</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.button, styles.debugButton]} 
+
+              <TouchableOpacity
+                style={[styles.button, styles.debugButton]}
                 onPress={testConnection}
               >
                 <Text style={styles.buttonText}>Debug</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.button, styles.closeButton]} 
+
+              <TouchableOpacity
+                style={[styles.button, styles.closeButton]}
                 onPress={toggleCamera}
               >
                 <Text style={styles.buttonText}>Close</Text>
               </TouchableOpacity>
+              {/* Removed End Workout button */}
             </View>
           </View>
         </CameraView>
@@ -263,8 +295,8 @@ export default function PushupTrain() {
           <TouchableOpacity style={styles.button} onPress={toggleCamera}>
             <Text style={styles.buttonText}>Start Training</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.button, styles.debugButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.debugButton]}
             onPress={testConnection}
           >
             <Text style={styles.buttonText}>Test Connection</Text>

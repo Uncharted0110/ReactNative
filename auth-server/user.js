@@ -7,6 +7,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // Pass 'user' as third param to use this exact collection name instead of pluralized 'users'
-const User = mongoose.model('User', userSchema, 'user');
+const User = mongoose.model('User', userSchema, 'users');
 
 module.exports = User;

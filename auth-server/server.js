@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://exercia:Fpd20jbSjavHHM5H@@cluster0.qpv0m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect('mongodb+srv://exercia:Fpd20jbSjavHHM5H@cluster0.qpv0m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -34,15 +34,5 @@ app.post('/login', async (req, res) => {
 
     res.json({ message: 'Login successful' });
 });
-
-app.delete('/clear-users', async (req, res) => {
-    try {
-        await User.deleteMany({});
-        res.json({ message: 'All users deleted' });
-    } catch (err) {
-        res.status(500).json({ message: 'Error clearing users' });
-    }
-});
-
 
 app.listen(3000, () => console.log('Server running on port 3000'));
