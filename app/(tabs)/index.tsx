@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext, useState } from 'react';
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import { UserContext } from '../_layout';
 import PushupTrain from '../pushup_train';
+import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom sheet component
 
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
@@ -157,7 +159,7 @@ function Dashboard({ navigation }: { navigation: any }) {
           </View>
           <TouchableOpacity
             style={styles.workoutButton}
-            onPress={() => navigation.navigate('Workouts')}
+            onPress={() => navigation.navigate('WorkoutSelection')}
           >
             <Text style={styles.workoutButtonText}>Start Workout</Text>
           </TouchableOpacity>
@@ -215,6 +217,48 @@ function Dashboard({ navigation }: { navigation: any }) {
   );
 }
 
+// New WorkoutSelection page
+function WorkoutSelection({ navigation }: { navigation: any }) {
+  const [showPushupSheet, setShowPushupSheet] = useState(false);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Choose Your Workout</Text>
+      <TouchableOpacity
+        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
+        onPress={() => setShowPushupSheet(true)}
+      >
+        <MaterialCommunityIcons name="arm-flex" size={24} color="#fff" style={styles.iconLeft} />
+        <Text style={styles.workoutButtonText}>Pushups</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
+        onPress={() => Alert.alert('Coming Soon', 'Russian Twists workout coming soon!')}
+      >
+        <MaterialCommunityIcons name="rotate-3d-variant" size={24} color="#fff" style={styles.iconLeft} />
+        <Text style={styles.workoutButtonText}>Russian Twists</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
+        onPress={() => Alert.alert('Coming Soon', 'Squats workout coming soon!')}
+      >
+        <MaterialCommunityIcons name="human-handsup" size={24} color="#fff" style={styles.iconLeft} />
+        <Text style={styles.workoutButtonText}>Squats</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
+        onPress={() => Alert.alert('Coming Soon', 'Plank workout coming soon!')}
+      >
+        <MaterialCommunityIcons name="human" size={24} color="#fff" style={styles.iconLeft} />
+        <Text style={styles.workoutButtonText}>Plank</Text>
+      </TouchableOpacity>
+      {showPushupSheet && (
+        <PushupStepsSheet visible={showPushupSheet} onClose={() => setShowPushupSheet(false)} />
+      )}
+    </View>
+  );
+}
+
 function Workouts({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
@@ -238,6 +282,11 @@ export default function App() {
           name="Dashboard"
           component={Dashboard}
           options={{ title: 'Fitness Dashboard' }}
+        />
+        <Stack.Screen
+          name="WorkoutSelection"
+          component={WorkoutSelection}
+          options={{ title: 'Select Workout' }}
         />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="PushupTrain" component={PushupTrain} />
@@ -399,5 +448,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     color: 'blue',
+  },
+  selectionButton: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconLeft: {
+    marginRight: 12,
   },
 });
