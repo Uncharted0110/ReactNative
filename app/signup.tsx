@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Button, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function SignupScreen() {
     const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ export default function SignupScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
 
-      const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
+    const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
 
 
     const handleSignup = async () => {
@@ -47,6 +47,10 @@ export default function SignupScreen() {
 
     return (
         <View style={styles.container}>
+            <Image
+                source={require('../assets/logo.png')}
+                style={styles.logo}
+            />
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 placeholder="Email"
@@ -89,5 +93,12 @@ const styles = StyleSheet.create({
     container: { padding: 20, flex: 1, justifyContent: 'center' },
     title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
     input: { borderBottomWidth: 1, marginBottom: 15, padding: 8 },
-    link: { marginTop: 15, color: 'blue', textAlign: 'center' }
+    link: { marginTop: 15, color: 'blue', textAlign: 'center' },
+    logo: {
+        width: 240,         // 👈 Change width
+        height: 240,        // 👈 Change height
+        resizeMode: 'contain', // or 'cover', 'stretch'
+        alignSelf: 'center',
+        marginBottom: 20,
+    }
 });
