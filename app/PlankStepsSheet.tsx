@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -23,6 +24,7 @@ export default function PlankStepsSheet({
   const [targetTime, setTargetTime] = useState('30');
   const [numSets, setNumSets] = useState('3');
   const [breakTime, setBreakTime] = useState('60');
+  const router = useRouter();
 
   return (
     <Modal
@@ -35,7 +37,7 @@ export default function PlankStepsSheet({
         <View style={styles.sheet}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Image
-              source={require('../assets/pushup_steps.png')}
+              source={require('../assets/plank_steps.png')}
               style={styles.plankImage}
               resizeMode="contain"
             />
@@ -77,10 +79,7 @@ export default function PlankStepsSheet({
               style={styles.startButton}
               onPress={() => {
                 onClose();
-                // Use navigation instead of router.push for navigation
-                // navigation.navigate('PlankTrain');
-                // If using router, use a valid route or fallback
-                // For now, just close the sheet
+                router.push('/plank_train');
               }}
             >
               <Text style={styles.startButtonText}>Start Plank Training</Text>
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     height: 140,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: '#fff4e6',
+    backgroundColor: '#96ccff',
   },
   startButton: {
     alignSelf: 'center',

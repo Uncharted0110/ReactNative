@@ -35,7 +35,7 @@ export default function SquatStepsSheet({
         <View style={styles.sheet}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Image
-              source={require('../assets/squats.jpg')}
+              source={require('../assets/squats_steps.png')}
               style={styles.squatImage}
               resizeMode="contain"
             />
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     height: 140,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: '#fff4e6',
+    backgroundColor: '#96ccff',
   },
   startButton: {
     alignSelf: 'center',

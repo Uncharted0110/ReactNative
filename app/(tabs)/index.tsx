@@ -253,7 +253,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
             <Text style={styles.greeting}>
-              Hi {username ?? 'User'}! 👋
+              Hi, {username ?? 'User'}! 👋
             </Text>
             <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
           </View>
@@ -330,19 +330,23 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
                             ? require('../../assets/pushup.png')
                             : item.workout_name === 'russian twists'
                               ? require('../../assets/twists.png')
-                              : require('../../assets/pushup_steps.png')
+                              : item.workout_name === 'plank'
+                                ? require('../../assets/plank.png')
+                                : require('../../assets/squat.png')
                         }
                         style={{
                           width: 120,
                           height: 70,
                           borderRadius: 10,
-                          backgroundColor: '#152238', // Match dark theme
-                          marginRight: 24, // Increased spacing
+                          backgroundColor: '#152238',
+                          marginRight: 24,
                         }}
                         resizeMode="contain"
                       />
                       <Text style={{ fontSize: 15, color: '#fff' }}>
-                        X {item.total_reps ?? 0}
+                        {item.workout_name === 'plank'
+                          ? `- ${(item.total_reps ?? 0) * 5}s`
+                          : `X ${item.total_reps ?? 0}`}
                       </Text>
                     </View>
 
@@ -356,6 +360,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
                   No workouts found for this day.
                 </Text>
               )}
+
 
               <TouchableOpacity
                 style={{

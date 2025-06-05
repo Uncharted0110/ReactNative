@@ -123,11 +123,11 @@ const RadarChart: React.FC<RadarChartProps> = ({
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const result = await response.json();
-
         if (result.totals) {
           const muscleData = mapWorkoutToMuscleGroup(result.totals);
+          //console.log('Mapped Muscle Data:', muscleData);
           setData(muscleData);
         } else {
           setError('No workout data found');
@@ -184,7 +184,9 @@ const RadarChart: React.FC<RadarChartProps> = ({
   const generatePoints = () => {
     return attributes.map((attr, index) => {
       const angle = index * angleStep - Math.PI / 2; // Start from top
-      const value = (attr.value / maxValue) * radius;
+      const safeValue = isNaN(attr.value) ? 0 : attr.value;
+const value = (safeValue / maxValue) * radius;
+
       const x = center + Math.cos(angle) * value;
       const y = center + Math.sin(angle) * value;
       return `${x},${y}`;

@@ -5,6 +5,7 @@
 
 .env
 
+/home/sirfrancisdrake/ReactNative/app.json
 # Expo
 .expo/
 dist/
