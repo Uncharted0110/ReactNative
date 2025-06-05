@@ -54,6 +54,7 @@ export default function SignupScreen() {
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 placeholder="Email"
+                placeholderTextColor={"#888"} // Gray placeholder
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
@@ -61,6 +62,8 @@ export default function SignupScreen() {
             />
             <TextInput
                 placeholder="Username"
+                placeholderTextColor={"#888"} // Gray placeholder
+
                 value={username}
                 onChangeText={setUsername}
                 style={styles.input}
@@ -69,6 +72,8 @@ export default function SignupScreen() {
             />
             <TextInput
                 placeholder="Password"
+                placeholderTextColor={"#888"} // Gray placeholder
+
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -76,6 +81,8 @@ export default function SignupScreen() {
             />
             <TextInput
                 placeholder="Confirm Password"
+                placeholderTextColor={"#888"} // Gray placeholder
+
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
@@ -90,10 +97,15 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { padding: 20, flex: 1, justifyContent: 'center' },
-    title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
-    input: { borderBottomWidth: 1, marginBottom: 15, padding: 8 },
-    link: { marginTop: 15, color: 'blue', textAlign: 'center' },
+    container: {
+        padding: 20,
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#152238' // Light blue background
+    },
+    title: { fontSize: 24, marginBottom: 20, textAlign: 'center', color: '#ffffff' },
+    input: { borderBottomWidth: 1, marginBottom: 15, padding: 8, color: '#ffffff', borderColor: '#7f8c8d' },
+    link: { marginTop: 15, color: '#ffffff', textAlign: 'center' },
     logo: {
         width: 240,         // 👈 Change width
         height: 240,        // 👈 Change height

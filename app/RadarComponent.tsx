@@ -180,8 +180,6 @@ const RadarChart: React.FC<RadarChartProps> = ({
     { key: 'leg', label: 'Legs', value: data.leg },
   ];
 
-  console.log('RadarChart attributes:', attributes);
-
   // Generate points for the polygon based on data values
   const generatePoints = () => {
     return attributes.map((attr, index) => {

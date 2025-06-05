@@ -20,7 +20,7 @@ export default function LoginScreen() {
     }
 
     try {
-      const res = await fetch(`http://10.20.59.233:3000/login`, {
+      const res = await fetch(`http://${IP_ADDR}:3000/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -47,8 +47,21 @@ export default function LoginScreen() {
         style={styles.logo}
       />
       <Text style={styles.title}>Login</Text>
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+      <TextInput
+        placeholder="Email"
+        placeholderTextColor="#888" // 👈 Gray placeholder
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Password"
+        placeholderTextColor="#888"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
       <Button title="Login" onPress={handleLogin} />
       <Text onPress={() => router.push('/signup')} style={styles.link}>No account? Sign up</Text>
     </View>
@@ -57,16 +70,20 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1, justifyContent: 'center' },
-  title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
-  input: { borderBottomWidth: 1, marginBottom: 15, padding: 8 },
-  link: { marginTop: 15, color: 'blue', textAlign: 'center' },
+  container: {
+    padding: 20,
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#152238' // Light blue background
+  },
+  title: { fontSize: 24, marginBottom: 20, textAlign: 'center', color: '#ffffff' },
+  input: { borderBottomWidth: 1, marginBottom: 15, padding: 8, color: '#ffffff', borderColor: '#7f8c8d' },
+  link: { marginTop: 15, color: 'white', textAlign: 'center' },
   logo: {
-    width: 240,         // 👈 Change width
-    height: 240,        // 👈 Change height
-    resizeMode: 'contain', // or 'cover', 'stretch'
+    width: 240,
+    height: 240,
+    resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 20,
   }
-
 });
