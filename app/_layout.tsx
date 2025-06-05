@@ -1,29 +1,53 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot, useRouter } from 'expo-router';
+import React, { createContext, useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+// Add UserContext for email
+export const UserContext = createContext<{
+  email: string | null,
+  setEmail: (email: string | null) => void,
+  username: string | null,
+  setUsername: (username: string | null) => void
+}>({
+  email: null,
+  setEmail: () => {},
+  username: null,
+  setUsername: () => {},
+});
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null = loading
+  const [email, setEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const router = useRouter();
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
+  useEffect(() => {
+    // Simulate async auth check
+    const checkLogin = async () => {
+      // e.g., check AsyncStorage/token here
+      const loggedIn = false; // change as per your logic
+      setIsLoggedIn(loggedIn);
+    };
+    checkLogin();
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      router.replace('/login');
+    }
+  }, [isLoggedIn]);
+
+  if (isLoggedIn === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <UserContext.Provider value={{ email, setEmail, username, setUsername }}>
+      <Slot />
+    </UserContext.Provider>
   );
 }
