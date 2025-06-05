@@ -19,11 +19,7 @@
     "cors": "^2.8.5",
     "expo": "~53.0.9",
     "expo-blur": "~14.1.4",
-<<<<<<< HEAD
-    "expo-camera": "~16.1.6",
-=======
     "expo-camera": "^16.1.6",
->>>>>>> 34c6576dbfc0181694d7d2e12e17b181df9ce8cb
     "expo-constants": "~17.1.6",
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
@@ -37,10 +33,7 @@
     "expo-system-ui": "~5.0.7",
     "expo-web-browser": "~14.1.6",
     "express": "^5.1.0",
-<<<<<<< HEAD
-=======
     "mongodb": "^6.17.0",
->>>>>>> 34c6576dbfc0181694d7d2e12e17b181df9ce8cb
     "mongoose": "^8.15.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
