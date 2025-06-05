@@ -321,7 +321,8 @@ function Dashboard({ navigation }: { navigation: any }) {
 
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={{ flexGrow: 1, backgroundColor: '#152238' }}>
-      <View style={[styles.container, { flex: 1 }]}>{/* Ensure flex: 1 on main container */}
+      {/* Ensure flex: 1 on main container */}
+      <View style={[styles.container, { flex: 1 }]}> 
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
@@ -456,7 +457,12 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
   const [showTwistsSheet, setShowTwistsSheet] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: '#152238', flex: 1 }]}> 
+      
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
+        <MaterialCommunityIcons name="arrow-left" size={32} color="#fff" />
+      </TouchableOpacity>
+      <View style={{ height: 40 }} /> 
       <Text style={styles.title}>Choose Your Workout</Text>
       <TouchableOpacity onPress={() => setShowPushupSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
@@ -528,7 +534,8 @@ export default function App() {
         <Stack.Screen
           name="WorkoutSelection"
           component={WorkoutSelection}
-          options={{ title: 'Select Workout' }}
+          options={{ title: 'Select Workout', headerShown: false }}
+           // Hide the header
         />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="PushupTrain" component={PushupTrain} />
@@ -690,11 +697,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     color: '#ffffff',
+    paddingTop: 40, // Added padding above
+    paddingBottom: 20, // Added padding below
   },
   workout: {
     fontSize: 18,
     marginBottom: 10,
-    color: 'blue',
+    color: '#4f8cff',
   },
   selectionButton: {
     marginVertical: 10,
