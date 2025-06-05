@@ -336,8 +336,6 @@ function Dashboard({ navigation }: { navigation: any }) {
           </TouchableOpacity>
         </View>
 
-        {/* Radar Chart Section - ADD THIS */}
-        
         {/* Statistics Section */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
@@ -361,16 +359,17 @@ function Dashboard({ navigation }: { navigation: any }) {
               {renderCalendar()}
             </View>
           </View>
-
-
         </View>
 
-        <RadarChart
-          email="adityakl1509@gmail.com"
-          apiUrl={`http://${IP_ADDR}:3000`} // Remove the double quotes, keep only backticks
-          maxValue={170} // Adjust based on your expected max reps
-          size={300}
-        />
+        {/* Radar Chart Section - ADD THIS */}
+        <View style={{ backgroundColor: '#2c3e50', borderRadius: 15, padding: 16, marginTop: 20, marginBottom: 20 }}>
+          <RadarChart
+            email="adityakl1509@gmail.com"
+            apiUrl={`http://${IP_ADDR}:3000`}
+            maxValue={170}
+            size={300}
+          />
+        </View>
 
         {/* Overlay for workout details */}
         {overlayVisible && (
@@ -557,6 +556,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 5,
+    paddingTop: 50, // Added for more space above
+    paddingBottom: 10, // Added for more space below
   },
   subGreeting: {
     fontSize: 16,
@@ -579,7 +580,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   statsSection: {
-    backgroundColor: '#152238',
+    backgroundColor: '#2c3e50',
     borderRadius: 15,
     padding: 20,
     elevation: 2,
