@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+
 import LottieView from 'lottie-react-native';
 import React, { useContext, useState } from 'react';
 import {
@@ -9,6 +10,7 @@ import {
   Dimensions,
   Easing,
   Image,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -456,12 +458,17 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Choose Your Workout</Text>
-      <TouchableOpacity
-        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => setShowPushupSheet(true)}
-      >
-        <MaterialCommunityIcons name="arm-flex" size={24} color="#fff" style={styles.iconLeft} />
-        <Text style={styles.workoutButtonText}>Pushups</Text>
+      <TouchableOpacity onPress={() => setShowPushupSheet(true)} style={styles.imageButtonWrapper}>
+        <ImageBackground
+          source={require('../../assets/pushup_bg.png')} // Replace with your image
+          style={styles.imageButton}
+          imageStyle={{ borderRadius: 12 }}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.imageButtonText}>Pushups</Text>
+            <Text style={styles.imageButtonDescription}>Build chest, arms, and core strength</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
@@ -701,4 +708,29 @@ const styles = StyleSheet.create({
   iconLeft: {
     marginRight: 12,
   },
+  // 🔥 Make sure these are included!
+  imageButtonWrapper: {
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  imageButton: {
+    height: 120,
+    justifyContent: 'flex-end',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 9,
+  },
+  imageButtonText: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  imageButtonDescription: {
+    fontSize: 14,
+    color: '#ddd',
+    marginTop: 4,
+  },
+
 });
