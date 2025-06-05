@@ -20,7 +20,7 @@ export default function LoginScreen() {
     }
 
     try {
-      const res = await fetch(`http://${IP_ADDR}:3000/login`, {
+      const res = await fetch(`http://10.20.59.233:3000/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
