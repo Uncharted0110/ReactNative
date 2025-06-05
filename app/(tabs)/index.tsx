@@ -306,7 +306,7 @@ function Dashboard({ navigation }: { navigation: any }) {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#152238' }}>
         <LottieView
           source={require('../../assets/bottle.json')}
           autoPlay
@@ -318,8 +318,8 @@ function Dashboard({ navigation }: { navigation: any }) {
   }
 
   return (
-    <ScrollView style={styles.scrollContainer}>
-      <View style={styles.container}>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={{ flexGrow: 1, backgroundColor: '#152238' }}>
+      <View style={[styles.container, { flex: 1 }]}>{/* Ensure flex: 1 on main container */}
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
@@ -384,7 +384,7 @@ function Dashboard({ navigation }: { navigation: any }) {
             paddingBottom: 150, // <-- optional
           }}>
             <View style={{
-              backgroundColor: '#fff',
+              backgroundColor: '#1a2236', // Changed from '#fff' to dark
               borderRadius: 18,
               padding: 24,
               width: '85%',
@@ -408,23 +408,23 @@ function Dashboard({ navigation }: { navigation: any }) {
                           width: 120,
                           height: 70,
                           borderRadius: 10,
-                          backgroundColor: '#ffffff',
+                          backgroundColor: '#222a3a', // Match dark theme
                           marginRight: 24, // Increased spacing
                         }}
                         resizeMode="contain"
                       />
-                      <Text style={{ fontSize: 15, color: '#000000' }}>
+                      <Text style={{ fontSize: 15, color: '#fff' }}>
                         X {item.total_reps ?? 0}
                       </Text>
                     </View>
 
-                    <Text style={{ fontSize: 16, fontWeight: '600' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
                       {(item as WorkoutSummaryItem).workout_name?.replace(/(^|\s)\S/g, (l: string) => l.toUpperCase())}
                     </Text>
                   </View>
                 ))
               ) : (
-                <Text style={{ fontSize: 15, color: '#888', marginVertical: 18 }}>
+                <Text style={{ fontSize: 15, color: '#bbb', marginVertical: 18 }}>
                   No workouts found for this day.
                 </Text>
               )}
@@ -517,7 +517,7 @@ export default function App() {
         <Stack.Screen
           name="Dashboard"
           component={Dashboard}
-          options={{ title: 'Fitness Dashboard' }}
+          options={{ title: 'Fitness Dashboard', headerShown: false }}
         />
         <Stack.Screen
           name="WorkoutSelection"
@@ -535,7 +535,7 @@ export default function App() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#152238', // Match the normal page color
   },
   container: {
     flex: 1,
