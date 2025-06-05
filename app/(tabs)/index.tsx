@@ -2,7 +2,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LottieView from 'lottie-react-native';
-
 import React, { useContext, useState } from 'react';
 import {
   Alert,
@@ -67,7 +66,7 @@ function Dashboard({ navigation }: { navigation: any }) {
   const fetchWorkoutSummary = async () => {
     if (!email) return;
     try {
-      const res = await fetch(`http://192.168.185.193:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`http://192.168.1.5:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (res.ok) {
         setTotalSessions(data.total_sessions || 0);
@@ -97,7 +96,7 @@ function Dashboard({ navigation }: { navigation: any }) {
       const dateStr = `${yyyy}-${mm}-${dd}`;
       try {
         const res = await fetch(
-          `http://192.168.185.193:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+          `http://192.168.1.5:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -142,7 +141,7 @@ function Dashboard({ navigation }: { navigation: any }) {
     }
     try {
       const res = await fetch(
-        `http://192.168.185.193:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+        `http://192.168.1.5:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
