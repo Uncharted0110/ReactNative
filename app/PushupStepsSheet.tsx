@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: '(0,0,0,0.4)',
   },
   sheet: {
-    backgroundColor: '#fff',
+    backgroundColor: '#2c3e50',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+    color: '#ffffff',
   },
   steps: {
     marginBottom: 24,
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
   step: {
     fontSize: 16,
     marginBottom: 10,
+    color: '#ecf0f1',
   },
   optionsSection: {
     marginBottom: 24,
@@ -128,6 +130,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     marginBottom: 4,
+    color: '#ecf0f1',
   },
   input: {
     borderWidth: 1,
@@ -138,6 +141,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     width: 80,
     alignSelf: 'flex-start',
+    color: '#ffffff',
+    backgroundColor: '#34495e', // Darker background for input
   },
   closeButton: {
     alignSelf: 'center',

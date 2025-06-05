@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    Image,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const { height } = Dimensions.get('window');
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   sheet: {
-    backgroundColor: '#fff',
+    backgroundColor: '#2c3e50',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+    color: '#ffffff',
   },
   steps: {
     marginBottom: 24,
@@ -123,6 +124,7 @@ const styles = StyleSheet.create({
   step: {
     fontSize: 16,
     marginBottom: 10,
+    color: '#ecf0f1',
   },
   optionsSection: {
     marginBottom: 24,
@@ -132,6 +134,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     marginBottom: 4,
+    color: '#ecf0f1',
   },
   input: {
     borderWidth: 1,
@@ -142,6 +145,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     width: 80,
     alignSelf: 'flex-start',
+    color: "#ecf0f1",
+    backgroundColor: '#34495e', // Darker background for input
   },
   closeButton: {
     alignSelf: 'center',
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
     height: 140,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: '#fff4e6', 
+    backgroundColor: '#fff4e6',
   },
   startButton: {
     alignSelf: 'center',
