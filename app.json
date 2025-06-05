@@ -41,7 +41,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "IP_ADDR": "10.20.59.233"
+      "IP_ADDR": "192.168.185.193"
     }
   }
 }

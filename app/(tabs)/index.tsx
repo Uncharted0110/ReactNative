@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NavigationIndependentTree } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import LottieView from 'lottie-react-native';
 import React, { useContext, useState } from 'react';
@@ -322,7 +323,7 @@ function Dashboard({ navigation }: { navigation: any }) {
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={{ flexGrow: 1, backgroundColor: '#152238' }}>
       {/* Ensure flex: 1 on main container */}
-      <View style={[styles.container, { flex: 1 }]}> 
+      <View style={[styles.container, { flex: 1 }]}>
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
@@ -457,46 +458,74 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
   const [showTwistsSheet, setShowTwistsSheet] = useState(false);
 
   return (
-    <View style={[styles.container, { backgroundColor: '#152238', flex: 1 }]}> 
-      
+    <View style={[styles.container, { backgroundColor: '#152238', flex: 1 }]}>
+
       <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
         <MaterialCommunityIcons name="arrow-left" size={32} color="#fff" />
       </TouchableOpacity>
-      <View style={{ height: 40 }} /> 
+      <View style={{ height: 40 }} />
       <Text style={styles.title}>Choose Your Workout</Text>
+
       <TouchableOpacity onPress={() => setShowPushupSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
-          source={require('../../assets/pushup_bg.png')} // Replace with your image
+          source={require('../../assets/pushup_bg.jpg')} // Replace with your image
           style={styles.imageButton}
           imageStyle={{ borderRadius: 12 }}
         >
+          <LinearGradient
+            colors={['rgba(0,0,0,0.7)', 'transparent']}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.gradient}
+          />
+
+
           <View style={styles.overlay}>
             <Text style={styles.imageButtonText}>Pushups</Text>
             <Text style={styles.imageButtonDescription}>Build chest, arms, and core strength</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => setShowTwistsSheet(true)}
-      >
-        <MaterialCommunityIcons name="rotate-3d-variant" size={24} color="#fff" style={styles.iconLeft} />
-        <Text style={styles.workoutButtonText}>Russian Twists</Text>
+
+      <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
+        <ImageBackground
+          source={require('../../assets/twists_bg.png')} // Replace with your image
+          style={styles.imageButton}
+          imageStyle={{ borderRadius: 12 }}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.imageButtonText}>Russian Twists</Text>
+            <Text style={styles.imageButtonDescription}>Build core</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => Alert.alert('Coming Soon', 'Squats workout coming soon!')}
-      >
-        <MaterialCommunityIcons name="human-handsup" size={24} color="#fff" style={styles.iconLeft} />
-        <Text style={styles.workoutButtonText}>Squats</Text>
+
+      <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
+        <ImageBackground
+          source={require('../../assets/squats.jpg')} // Replace with your image
+          style={styles.imageButton}
+          imageStyle={{ borderRadius: 12 }}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.imageButtonText}>Squats</Text>
+            <Text style={styles.imageButtonDescription}>Build booty</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => Alert.alert('Coming Soon', 'Plank workout coming soon!')}
-      >
-        <MaterialCommunityIcons name="human" size={24} color="#fff" style={styles.iconLeft} />
-        <Text style={styles.workoutButtonText}>Plank</Text>
+
+      <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
+        <ImageBackground
+          source={require('../../assets/plank_bg.png')} // Replace with your image
+          style={styles.imageButton}
+          imageStyle={{ borderRadius: 12 }}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.imageButtonText}>Plank</Text>
+            <Text style={styles.imageButtonDescription}>Build core</Text>
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
+
       {showPushupSheet && (
         <PushupStepsSheet visible={showPushupSheet} onClose={() => setShowPushupSheet(false)} />
       )}
@@ -535,7 +564,7 @@ export default function App() {
           name="WorkoutSelection"
           component={WorkoutSelection}
           options={{ title: 'Select Workout', headerShown: false }}
-           // Hide the header
+        // Hide the header
         />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="PushupTrain" component={PushupTrain} />
@@ -728,7 +757,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 9,
   },
   imageButtonText: {
@@ -741,5 +769,10 @@ const styles = StyleSheet.create({
     color: '#ddd',
     marginTop: 4,
   },
+  gradient: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    borderRadius: 12,
+  }
 
 });
