@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import RadarChart from '../RadarComponent';
 
 import { UserContext } from '../_layout';
 
@@ -30,6 +31,16 @@ type WorkoutSummaryItem = {
   workout_name?: string;
   total_reps?: number;
 };
+
+interface MuscleGroupData {
+  chest: number;
+  bicep: number;
+  leg: number;
+  glutes: number;
+  abs: number;
+  back: number;
+  tricep: number;
+}
 
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
@@ -75,13 +86,24 @@ function Dashboard({ navigation }: { navigation: any }) {
       if (res.ok) {
         setTotalSessions(data.total_sessions || 0);
         setActiveDays(data.active_days || 0);
+
+        if (data.recent_workouts) {
+          const muscleData = calculateMuscleGroupData(data.recent_workouts);
+          setMuscleGroupData(muscleData);
+        }
       } else {
         setTotalSessions(0);
         setActiveDays(0);
+        setMuscleGroupData({
+          chest: 0, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
+        });
       }
     } catch (err) {
       setTotalSessions(0);
       setActiveDays(0);
+      setMuscleGroupData({
+        chest: 0, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
+      });
     }
   };
 
@@ -129,6 +151,71 @@ function Dashboard({ navigation }: { navigation: any }) {
     }
     setWorkoutData(newWorkoutData);
     setLoading(false);
+  };
+
+  const [muscleGroupData, setMuscleGroupData] = useState<MuscleGroupData>({
+    chest: 0,
+    bicep: 0,
+    leg: 0,
+    glutes: 0,
+    abs: 0,
+    back: 0,
+    tricep: 0,
+  });
+
+  const calculateMuscleGroupData = (workoutSummary: WorkoutSummaryItem[]): MuscleGroupData => {
+    const muscleData: MuscleGroupData = {
+      chest: 0,
+      bicep: 0,
+      leg: 0,
+      glutes: 0,
+      abs: 0,
+      back: 0,
+      tricep: 0,
+    };
+
+    // Calculate based on workout types
+    workoutSummary.forEach((workout: WorkoutSummaryItem) => {
+      const reps = workout.total_reps || 0;
+      const intensity = Math.min(reps / 2, 100); // Scale reps to percentage (adjust as needed)
+
+      switch (workout.workout_name?.toLowerCase()) {
+        case 'pushup':
+        case 'pushups':
+          muscleData.chest += intensity * 0.7;
+          muscleData.tricep += intensity * 0.5;
+          break;
+        case 'russian twists':
+        case 'twists':
+          muscleData.abs += intensity * 0.8;
+          break;
+        case 'squats':
+          muscleData.leg += intensity * 0.8;
+          muscleData.glutes += intensity * 0.6;
+          break;
+        case 'plank':
+          muscleData.abs += intensity * 0.6;
+          muscleData.back += intensity * 0.4;
+          break;
+        case 'pull-ups':
+        case 'pullups':
+          muscleData.back += intensity * 0.8;
+          muscleData.bicep += intensity * 0.6;
+          break;
+        default:
+          // Generic workout - distribute across all muscle groups
+          (Object.keys(muscleData) as Array<keyof MuscleGroupData>).forEach((key) => {
+            muscleData[key] += intensity * 0.1;
+          });
+      }
+    });
+
+    // Cap values at 100
+    (Object.keys(muscleData) as Array<keyof MuscleGroupData>).forEach((key) => {
+      muscleData[key] = Math.min(muscleData[key], 100);
+    });
+
+    return muscleData;
   };
 
   // Fetch summary and daily reps on mount and when email changes
@@ -246,6 +333,9 @@ function Dashboard({ navigation }: { navigation: any }) {
             <Text style={styles.workoutButtonText}>Start Workout</Text>
           </TouchableOpacity>
         </View>
+
+         {/* Radar Chart Section - ADD THIS */}
+        <RadarChart data={muscleGroupData} maxValue={100} size={width - 40} />
 
         {/* Statistics Section */}
         <View style={styles.statsSection}>
