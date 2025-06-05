@@ -10,7 +10,6 @@ import {
   Dimensions,
   Easing,
   Image,
-  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,9 +22,10 @@ import { UserContext } from '../_layout';
 
 import PushupTrain from '../pushup_train';
 import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom sheet component
+import SquatStepsSheet from '../SquatStepsSheet';
+import PlankStepsSheet from '../PlankStepsSheet';
 
 import Constants from 'expo-constants';
-import TwistsTrain from '../twists_train';
 import TwistsStepsSheet from '../TwistsStepsSheet';
 
 // Define WorkoutSummaryItem type for type safety
@@ -47,14 +47,13 @@ interface MuscleGroupData {
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
 
-function Dashboard({ navigation }: { navigation: any }) {
+function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
   // State for dynamic stats
   const [workoutData, setWorkoutData] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const { email, username } = useContext(UserContext);
   const [totalSessions, setTotalSessions] = useState<number>(0);
   const [activeDays, setActiveDays] = useState<number>(0);
-  const [showWorkoutData, setShowWorkoutData] = useState(false);
   const [stickmanAnim] = useState(new Animated.Value(0));
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState<{ date: string, summary: any[] } | null>(null);
@@ -86,28 +85,17 @@ function Dashboard({ navigation }: { navigation: any }) {
       const res = await fetch(`http://${IP_ADDR}:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (res.ok) {
-        setTotalSessions(data.total_sessions || 0);
-        setActiveDays(data.active_days || 0);
-
-        if (data.recent_workouts) {
-          const muscleData = calculateMuscleGroupData(data.recent_workouts);
-          setMuscleGroupData(muscleData);
-        }
+        setTotalSessions(data.total_sessions ?? 0);
+        setActiveDays(data.active_days ?? 0);
       } else {
         console.error("in else block", data);
         setTotalSessions(0);
         setActiveDays(0);
-        setMuscleGroupData({
-          chest: 1000, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
-        });
       }
     } catch (err) {
       console.error('Error fetching workout summary:', err);
       setTotalSessions(0);
       setActiveDays(0);
-      setMuscleGroupData({
-        chest: 1000, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
-      });
     }
   };
 
@@ -120,7 +108,6 @@ function Dashboard({ navigation }: { navigation: any }) {
     const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
     const daysInMonth = new Date(yyyy, currentDate.getMonth() + 1, 0).getDate();
     const newWorkoutData: Record<number, number> = {};
-
     for (let day = 1; day <= daysInMonth; day++) {
       const dd = String(day).padStart(2, '0');
       const dateStr = `${yyyy}-${mm}-${dd}`;
@@ -133,16 +120,15 @@ function Dashboard({ navigation }: { navigation: any }) {
           }
         );
         const contentType = res.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
+        if (!contentType?.includes('application/json')) {
           newWorkoutData[day] = 0;
           continue;
         }
         const data = await res.json();
-
         // Combine all reps for the day (use total_reps, not reps)
         if (res.ok && data.summary && Array.isArray(data.summary) && data.summary.length > 0) {
           const totalReps = data.summary.reduce(
-            (sum: number, workout: { total_reps?: number }) => sum + (workout.total_reps || 0),
+            (sum: number, workout: { total_reps?: number }) => sum + (workout.total_reps ?? 0),
             0
           );
           newWorkoutData[day] = totalReps;
@@ -150,76 +136,13 @@ function Dashboard({ navigation }: { navigation: any }) {
           newWorkoutData[day] = 0;
         }
       } catch (err) {
+        // Log error for debugging
+        console.error('Error fetching day workout data:', err);
         newWorkoutData[day] = 0;
       }
     }
     setWorkoutData(newWorkoutData);
     setLoading(false);
-  };
-
-  const [muscleGroupData, setMuscleGroupData] = useState<MuscleGroupData>({
-    chest: 0,
-    bicep: 0,
-    leg: 0,
-    glutes: 0,
-    abs: 0,
-    back: 0,
-    tricep: 0,
-  });
-
-  const calculateMuscleGroupData = (workoutSummary: WorkoutSummaryItem[]): MuscleGroupData => {
-    const muscleData: MuscleGroupData = {
-      chest: 100,
-      bicep: 0,
-      leg: 0,
-      glutes: 0,
-      abs: 0,
-      back: 0,
-      tricep: 0,
-    };
-
-    // Calculate based on workout types
-    workoutSummary.forEach((workout: WorkoutSummaryItem) => {
-      const reps = workout.total_reps || 0;
-      const intensity = Math.min(reps / 2, 100); // Scale reps to percentage (adjust as needed)
-
-      switch (workout.workout_name?.toLowerCase()) {
-        case 'pushup':
-        case 'pushups':
-          muscleData.chest = 10;
-          muscleData.tricep;
-          break;
-        case 'russian twists':
-        case 'twists':
-          muscleData.abs;
-          break;
-        case 'squats':
-          muscleData.leg;
-          muscleData.glutes;
-          break;
-        case 'plank':
-          muscleData.abs;
-          muscleData.back;
-          break;
-        case 'pull-ups':
-        case 'pullups':
-          muscleData.back;
-          muscleData.bicep;
-          break;
-        default:
-          // Generic workout - distribute across all muscle groups
-          (Object.keys(muscleData) as Array<keyof MuscleGroupData>).forEach((key) => {
-            muscleData[key] += intensity * 0.1;
-          });
-      }
-    });
-
-    // Cap values at 100
-    (Object.keys(muscleData) as Array<keyof MuscleGroupData>).forEach((key) => {
-      muscleData[key] = Math.min(muscleData[key], 100);
-    });
-
-    return muscleData;
   };
 
   // Fetch summary and daily reps on mount and when email changes
@@ -243,7 +166,7 @@ function Dashboard({ navigation }: { navigation: any }) {
         }
       );
       const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      if (!contentType?.includes('application/json')) {
         setOverlayData({ date: dateStr, summary: [] });
         setOverlayVisible(true);
         return;
@@ -252,6 +175,7 @@ function Dashboard({ navigation }: { navigation: any }) {
       setOverlayData({ date: dateStr, summary: Array.isArray(data.summary) ? data.summary : [] });
       setOverlayVisible(true);
     } catch (err) {
+      console.error('Error fetching overlay data:', err);
       setOverlayData({ date: dateStr, summary: [] });
       setOverlayVisible(true);
     }
@@ -327,7 +251,7 @@ function Dashboard({ navigation }: { navigation: any }) {
         <View style={styles.headerSection}>
           <View style={styles.headerLeft}>
             <Text style={styles.greeting}>
-              Hi {username ? username : 'User'}! 👋
+              Hi {username ?? 'User'}! 👋
             </Text>
             <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
           </View>
@@ -395,8 +319,8 @@ function Dashboard({ navigation }: { navigation: any }) {
               elevation: 8,
             }}>
               {overlayData && overlayData.summary.length > 0 ? (
-                overlayData.summary.map((item, idx) => (
-                  <View key={idx} style={{ alignItems: 'center', marginBottom: 16 }}>
+                overlayData.summary.map((item) => (
+                  <View key={item.workout_name + (item.total_reps ?? 0)} style={{ alignItems: 'center', marginBottom: 16 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
                       <Image
                         source={
@@ -452,9 +376,11 @@ function Dashboard({ navigation }: { navigation: any }) {
 }
 
 // New WorkoutSelection page
-function WorkoutSelection({ navigation }: { navigation: any }) {
+function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
   const [showPushupSheet, setShowPushupSheet] = useState(false);
   const [showTwistsSheet, setShowTwistsSheet] = useState(false);
+  const [showSquatSheet, setShowSquatSheet] = useState(false);
+  const [showPlankSheet, setShowPlankSheet] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: '#152238', flex: 1 }]}> 
@@ -464,17 +390,12 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
       </TouchableOpacity>
       <View style={{ height: 40 }} /> 
       <Text style={styles.title}>Choose Your Workout</Text>
-      <TouchableOpacity onPress={() => setShowPushupSheet(true)} style={styles.imageButtonWrapper}>
-        <ImageBackground
-          source={require('../../assets/pushup_bg.png')} // Replace with your image
-          style={styles.imageButton}
-          imageStyle={{ borderRadius: 12 }}
-        >
-          <View style={styles.overlay}>
-            <Text style={styles.imageButtonText}>Pushups</Text>
-            <Text style={styles.imageButtonDescription}>Build chest, arms, and core strength</Text>
-          </View>
-        </ImageBackground>
+      <TouchableOpacity
+        style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
+        onPress={() => setShowPushupSheet(true)}
+      >
+        <MaterialCommunityIcons name="arm-flex" size={24} color="#fff" style={styles.iconLeft} />
+        <Text style={styles.workoutButtonText}>Pushups</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
@@ -485,14 +406,14 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => Alert.alert('Coming Soon', 'Squats workout coming soon!')}
+        onPress={() => setShowSquatSheet(true)}
       >
         <MaterialCommunityIcons name="human-handsup" size={24} color="#fff" style={styles.iconLeft} />
         <Text style={styles.workoutButtonText}>Squats</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.workoutButton, styles.selectionButton, styles.iconButton]}
-        onPress={() => Alert.alert('Coming Soon', 'Plank workout coming soon!')}
+        onPress={() => setShowPlankSheet(true)}
       >
         <MaterialCommunityIcons name="human" size={24} color="#fff" style={styles.iconLeft} />
         <Text style={styles.workoutButtonText}>Plank</Text>
@@ -503,11 +424,17 @@ function WorkoutSelection({ navigation }: { navigation: any }) {
       {showTwistsSheet && (
         <TwistsStepsSheet visible={showTwistsSheet} onClose={() => setShowTwistsSheet(false)} />
       )}
+      {showSquatSheet && (
+        <SquatStepsSheet visible={showSquatSheet} onClose={() => setShowSquatSheet(false)} />
+      )}
+      {showPlankSheet && (
+        <PlankStepsSheet visible={showPlankSheet} onClose={() => setShowPlankSheet(false)} />
+      )}
     </View>
   );
 }
 
-function Workouts({ navigation }: { navigation: any }) {
+function Workouts({ navigation }: Readonly<{ navigation: any }>) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Workouts</Text>
@@ -539,7 +466,7 @@ export default function App() {
         />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="PushupTrain" component={PushupTrain} />
-        <Stack.Screen name="TwistTrain" component={TwistsTrain} />
+        {/* <Stack.Screen name="TwistTrain" component={TwistsTrain} /> */}
       </Stack.Navigator>
     </NavigationIndependentTree>
   );
