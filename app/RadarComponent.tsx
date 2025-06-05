@@ -1,6 +1,6 @@
 // RadarChart.tsx
-import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -16,9 +16,10 @@ interface MuscleGroupData {
 }
 
 interface RadarChartProps {
-  data: MuscleGroupData;
+  email: string;
   maxValue?: number;
   size?: number;
+  apiUrl?: string; // Base URL for your API
 }
 
 interface AttributeData {
@@ -27,20 +28,156 @@ interface AttributeData {
   value: number;
 }
 
-const RadarChart: React.FC<RadarChartProps> = ({ data, maxValue = 100, size = 200 }) => {
+interface WorkoutTotals {
+  [workoutName: string]: number;
+}
+
+const RadarChart: React.FC<RadarChartProps> = ({ 
+  email, 
+  maxValue = 100, 
+  size = 180,
+  apiUrl = 'http://localhost:3000' // Default API URL
+}) => {
+  const [data, setData] = useState<MuscleGroupData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const center = size / 2;
   const radius = size / 2 - 40;
   const angleStep = (2 * Math.PI) / 7; // 7 attributes
 
+  // Mapping function to convert workout names to muscle groups
+  const mapWorkoutToMuscleGroup = (workoutTotals: WorkoutTotals): MuscleGroupData => {
+    const muscleData: MuscleGroupData = {
+      chest: 0,
+      bicep: 0,
+      leg: 0,
+      glutes: 0,
+      abs: 0,
+      back: 0,
+      tricep: 0,
+    };
+
+    // Map each workout to its primary muscle group(s)
+    Object.entries(workoutTotals).forEach(([workoutName, totalReps]) => {
+      const lowerWorkout = workoutName.toLowerCase();
+      
+      // Chest exercises
+      if (lowerWorkout.includes('pushup') || lowerWorkout.includes('push-up') || 
+          lowerWorkout.includes('bench') || lowerWorkout.includes('chest')) {
+        muscleData.chest += totalReps;
+      }
+      
+      // Bicep exercises
+      if (lowerWorkout.includes('curl') || lowerWorkout.includes('bicep')) {
+        muscleData.bicep += totalReps;
+      }
+      
+      // Tricep exercises
+      if (lowerWorkout.includes('tricep') || lowerWorkout.includes('dip') || 
+          lowerWorkout.includes('extension')) {
+        muscleData.tricep += totalReps;
+      }
+      
+      // Back exercises
+      if (lowerWorkout.includes('pullup') || lowerWorkout.includes('pull-up') || 
+          lowerWorkout.includes('row') || lowerWorkout.includes('back')) {
+        muscleData.back += totalReps;
+      }
+      
+      // Abs exercises
+      if (lowerWorkout.includes('crunch') || lowerWorkout.includes('plank') || 
+          lowerWorkout.includes('sit-up') || lowerWorkout.includes('situp') ||
+          lowerWorkout.includes('abs') || lowerWorkout.includes('twist')) {
+        muscleData.abs += totalReps;
+      }
+      
+      // Leg exercises
+      if (lowerWorkout.includes('squat') || lowerWorkout.includes('lunge') || 
+          lowerWorkout.includes('leg') || lowerWorkout.includes('calf')) {
+        muscleData.leg += totalReps;
+      }
+      
+      // Glute exercises
+      if (lowerWorkout.includes('glute') || lowerWorkout.includes('hip') || 
+          lowerWorkout.includes('bridge')) {
+        muscleData.glutes += totalReps;
+      }
+    });
+
+    return muscleData;
+  };
+
+  // Fetch workout data from API
+  useEffect(() => {
+    const fetchWorkoutData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(`${apiUrl}/api/workout-totals?email=${encodeURIComponent(email)}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.totals) {
+          const muscleData = mapWorkoutToMuscleGroup(result.totals);
+          setData(muscleData);
+        } else {
+          setError('No workout data found');
+        }
+      } catch (err) {
+        console.error('Error fetching workout data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (email) {
+      fetchWorkoutData();
+    }
+  }, [email, apiUrl]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#ff6b35" />
+        <Text style={styles.loadingText}>Loading workout data...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  if (!data) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>No workout data available</Text>
+      </View>
+    );
+  }
+
   const attributes: AttributeData[] = [
-    { key: 'chest', label: 'Chest', value: data.chest || 0 },
-    { key: 'bicep', label: 'Bicep', value: data.bicep || 0 },
-    { key: 'tricep', label: 'Tricep', value: data.tricep || 0 },
-    { key: 'back', label: 'Back', value: data.back || 0 },
-    { key: 'abs', label: 'Abs', value: data.abs || 0 },
-    { key: 'glutes', label: 'Glutes', value: data.glutes || 0 },
-    { key: 'leg', label: 'Legs', value: data.leg || 0 },
+    { key: 'chest', label: 'Chest', value: data.chest },
+    { key: 'bicep', label: 'Bicep', value: data.bicep },
+    { key: 'tricep', label: 'Tricep', value: data.tricep },
+    { key: 'back', label: 'Back', value: data.back },
+    { key: 'abs', label: 'Abs', value: data.abs },
+    { key: 'glutes', label: 'Glutes', value: data.glutes },
+    { key: 'leg', label: 'Legs', value: data.leg },
   ];
+
+  console.log('RadarChart attributes:', attributes);
 
   // Generate points for the polygon based on data values
   const generatePoints = () => {
@@ -112,7 +249,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ data, maxValue = 100, size = 20
           textAnchor="middle"
           alignmentBaseline="middle"
         >
-          {attr.label}
+          {attr.label} 
         </SvgText>
       );
     });
@@ -120,20 +257,11 @@ const RadarChart: React.FC<RadarChartProps> = ({ data, maxValue = 100, size = 20
 
   // Calculate overall score
   const totalValue = attributes.reduce((sum, attr) => sum + attr.value, 0);
-  const overallScore = Math.round((totalValue / (attributes.length * maxValue)) * 100);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Muscle Group Development</Text>
-        <View style={styles.scoreContainer}>
-          <Text style={styles.scoreLabel}>Overall Score</Text>
-          <Text style={[styles.scoreValue, { color: getScoreColor(overallScore) }]}>
-            {overallScore}%
-          </Text>
-        </View>
-      </View>
-
+      
+      
       <View style={styles.chartContainer}>
         <Svg height={size} width={size}>
           {/* Grid circles */}
@@ -165,7 +293,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ data, maxValue = 100, size = 20
                 r="4"
                 fill="#ff6b35"
                 stroke="#fff"
-                strokeWidth="2"
+                strokeWidth="1"
               />
             );
           })}
@@ -173,21 +301,6 @@ const RadarChart: React.FC<RadarChartProps> = ({ data, maxValue = 100, size = 20
           {/* Labels */}
           {generateLabels()}
         </Svg>
-      </View>
-
-      {/* Legend */}
-      <View style={styles.legendContainer}>
-        <Text style={styles.legendTitle}>Muscle Groups</Text>
-        <View style={styles.legendGrid}>
-          {attributes.map((attr, index) => (
-            <View key={index} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#ff6b35' }]} />
-              <Text style={styles.legendText}>
-                {attr.label}: {attr.value}%
-              </Text>
-            </View>
-          ))}
-        </View>
       </View>
     </View>
   );
@@ -211,6 +324,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 200,
   },
   header: {
     flexDirection: 'row',
@@ -239,36 +357,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  legendContainer: {
+  loadingText: {
     marginTop: 10,
-  },
-  legendTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 12,
+    color: '#7f8c8d',
   },
-  legendGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '48%',
-    marginBottom: 8,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#2c3e50',
-    fontWeight: '500',
+  errorText: {
+    fontSize: 16,
+    color: '#e74c3c',
+    textAlign: 'center',
   },
 });
 

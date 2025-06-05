@@ -125,6 +125,54 @@ app.get('/api/workout-summary', async (req, res) => {
   }
 });
 
+// Add this endpoint to your existing server code
+
+app.get('/api/workout-totals', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email }).lean();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const workouts = user.workouts || [];
+
+    if (workouts.length === 0) {
+      return res.json({ 
+        email, 
+        totals: {},
+        message: 'No workouts found' 
+      });
+    }
+
+    // Calculate total reps for each workout type
+    const totals = {};
+    workouts.forEach(workout => {
+      const workoutName = workout.workout_name;
+      const reps = workout.reps || 0;
+      
+      if (!totals[workoutName]) {
+        totals[workoutName] = 0;
+      }
+      totals[workoutName] += reps;
+    });
+
+    res.json({
+      email,
+      totals
+    });
+
+  } catch (err) {
+    console.error('Workout totals error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

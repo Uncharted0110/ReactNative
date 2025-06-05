@@ -92,17 +92,19 @@ function Dashboard({ navigation }: { navigation: any }) {
           setMuscleGroupData(muscleData);
         }
       } else {
+        console.error("in else block", data);
         setTotalSessions(0);
         setActiveDays(0);
         setMuscleGroupData({
-          chest: 0, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
+          chest: 1000, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
         });
       }
     } catch (err) {
+      console.error('Error fetching workout summary:', err);
       setTotalSessions(0);
       setActiveDays(0);
       setMuscleGroupData({
-        chest: 0, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
+        chest: 1000, bicep: 0, leg: 0, glutes: 0, abs: 0, back: 0, tricep: 0
       });
     }
   };
@@ -165,7 +167,7 @@ function Dashboard({ navigation }: { navigation: any }) {
 
   const calculateMuscleGroupData = (workoutSummary: WorkoutSummaryItem[]): MuscleGroupData => {
     const muscleData: MuscleGroupData = {
-      chest: 0,
+      chest: 100,
       bicep: 0,
       leg: 0,
       glutes: 0,
@@ -182,25 +184,25 @@ function Dashboard({ navigation }: { navigation: any }) {
       switch (workout.workout_name?.toLowerCase()) {
         case 'pushup':
         case 'pushups':
-          muscleData.chest += intensity * 0.7;
-          muscleData.tricep += intensity * 0.5;
+          muscleData.chest = 10;
+          muscleData.tricep;
           break;
         case 'russian twists':
         case 'twists':
-          muscleData.abs += intensity * 0.8;
+          muscleData.abs;
           break;
         case 'squats':
-          muscleData.leg += intensity * 0.8;
-          muscleData.glutes += intensity * 0.6;
+          muscleData.leg;
+          muscleData.glutes;
           break;
         case 'plank':
-          muscleData.abs += intensity * 0.6;
-          muscleData.back += intensity * 0.4;
+          muscleData.abs;
+          muscleData.back;
           break;
         case 'pull-ups':
         case 'pullups':
-          muscleData.back += intensity * 0.8;
-          muscleData.bicep += intensity * 0.6;
+          muscleData.back;
+          muscleData.bicep;
           break;
         default:
           // Generic workout - distribute across all muscle groups
@@ -334,9 +336,13 @@ function Dashboard({ navigation }: { navigation: any }) {
           </TouchableOpacity>
         </View>
 
-         {/* Radar Chart Section - ADD THIS */}
-        <RadarChart data={muscleGroupData} maxValue={100} size={width - 40} />
-
+        {/* Radar Chart Section - ADD THIS */}
+        <RadarChart
+          email="adityakl1509@gmail.com"
+          apiUrl={`http://${IP_ADDR}:3000`} // Remove the double quotes, keep only backticks
+          maxValue={170} // Adjust based on your expected max reps
+          size={300}
+        />
         {/* Statistics Section */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
@@ -354,8 +360,6 @@ function Dashboard({ navigation }: { navigation: any }) {
             </View>
           </View>
 
-
-
           {/* Calendar Grid */}
           <View style={styles.calendarContainer}>
             <View style={styles.calendarGrid}>
@@ -372,9 +376,10 @@ function Dashboard({ navigation }: { navigation: any }) {
             position: 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.55)',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             zIndex: 100,
+            paddingBottom: 150, // <-- optional
           }}>
             <View style={{
               backgroundColor: '#fff',
@@ -388,7 +393,7 @@ function Dashboard({ navigation }: { navigation: any }) {
               {overlayData && overlayData.summary.length > 0 ? (
                 overlayData.summary.map((item, idx) => (
                   <View key={idx} style={{ alignItems: 'center', marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
                       <Image
                         source={
                           item.workout_name === 'pushup'
