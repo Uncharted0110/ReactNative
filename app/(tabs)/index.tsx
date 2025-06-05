@@ -269,7 +269,7 @@ function Dashboard({ navigation }: { navigation: any }) {
   };
 
   const getIntensityColor = (workoutCount: number) => {
-    if (workoutCount === 0) return '#e8e8e8';         // No workout
+    if (workoutCount === 0) return '#8da9c4';         // No workout
     if (workoutCount <= 20) return '#ffcc80';          // Light: 1-20 reps
     if (workoutCount <= 55) return '#ff9800';          // Moderate: 21-55 reps
     if (workoutCount > 55) return '#f57c00';           // Intense: 56+ reps
@@ -337,12 +337,7 @@ function Dashboard({ navigation }: { navigation: any }) {
         </View>
 
         {/* Radar Chart Section - ADD THIS */}
-        <RadarChart
-          email="adityakl1509@gmail.com"
-          apiUrl={`http://${IP_ADDR}:3000`} // Remove the double quotes, keep only backticks
-          maxValue={170} // Adjust based on your expected max reps
-          size={300}
-        />
+        
         {/* Statistics Section */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
@@ -369,6 +364,13 @@ function Dashboard({ navigation }: { navigation: any }) {
 
 
         </View>
+
+        <RadarChart
+          email="adityakl1509@gmail.com"
+          apiUrl={`http://${IP_ADDR}:3000`} // Remove the double quotes, keep only backticks
+          maxValue={170} // Adjust based on your expected max reps
+          size={300}
+        />
 
         {/* Overlay for workout details */}
         {overlayVisible && (
@@ -533,7 +535,7 @@ export default function App() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#000000',
   },
   container: {
     flex: 1,
@@ -552,7 +554,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ffffff',
     marginBottom: 5,
   },
   subGreeting: {
@@ -576,7 +578,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   statsSection: {
-    backgroundColor: 'white',
+    backgroundColor: '#152238',
     borderRadius: 15,
     padding: 20,
     elevation: 2,
@@ -588,7 +590,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ffffff',
     marginBottom: 5,
   },
   monthTitle: {
@@ -603,7 +605,7 @@ const styles = StyleSheet.create({
   },
   statBox: {
     alignItems: 'center',
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#8da9c4',
     padding: 15,
     borderRadius: 10,
     minWidth: 100,
@@ -611,11 +613,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ff6b35',
+    color: '#152238',
   },
   statLabel: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: '#ffffff',
     marginTop: 5,
   },
   calendarContainer: {

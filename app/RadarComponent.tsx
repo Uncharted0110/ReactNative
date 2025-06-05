@@ -246,8 +246,8 @@ const RadarChart: React.FC<RadarChartProps> = ({
           key={index}
           x={x}
           y={y}
-          fill="#2c3e50"
-          fontSize="12"
+          fill="#ffffff"
+          fontSize="14"
           fontWeight="600"
           textAnchor="middle"
           alignmentBaseline="middle"
@@ -263,7 +263,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
 
   return (
     <View style={styles.container}>
-
+      <Text style={styles.title}>Your Progress</Text>
 
       <View style={styles.chartContainer}>
         <Svg height={size} width={size}>
@@ -318,7 +318,7 @@ const getScoreColor = (score: number): string => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: '#152238',
     borderRadius: 15,
     padding: 20,
     marginVertical: 10,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ffffff',
   },
   scoreContainer: {
     alignItems: 'center',
