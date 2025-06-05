@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -14,17 +13,16 @@ import {
 
 const { height } = Dimensions.get('window');
 
-export default function PushupStepsSheet({
+export default function PlankStepsSheet({
   visible,
   onClose,
 }: Readonly<{
   visible: boolean;
   onClose: () => void;
 }>) {
-  const [targetReps, setTargetReps] = useState('10');
+  const [targetTime, setTargetTime] = useState('30');
   const [numSets, setNumSets] = useState('3');
   const [breakTime, setBreakTime] = useState('60');
-  const router = useRouter();
 
   return (
     <Modal
@@ -38,24 +36,24 @@ export default function PushupStepsSheet({
           <ScrollView showsVerticalScrollIndicator={false}>
             <Image
               source={require('../assets/pushup_steps.png')}
-              style={styles.pushupImage}
+              style={styles.plankImage}
               resizeMode="contain"
             />
             <Text style={styles.title}>Instructions</Text>
             <View style={styles.steps}>
-              <Text style={styles.step}>1. Start in a high plank position with your hands flat on the floor, shoulder-width apart.</Text>
-              <Text style={styles.step}>2. Keep your body in a straight line from head to heels.</Text>
-              <Text style={styles.step}>3. Lower your body until your chest nearly touches the floor.</Text>
-              <Text style={styles.step}>4. Pause, then push yourself back up to the starting position.</Text>
-              <Text style={styles.step}>5. Repeat for the desired number of repetitions.</Text>
+              <Text style={styles.step}>1. Start in a forearm plank position with elbows under shoulders and body in a straight line.</Text>
+              <Text style={styles.step}>2. Engage your core and glutes, keeping your hips level.</Text>
+              <Text style={styles.step}>3. Hold the position for the desired time, breathing steadily.</Text>
+              <Text style={styles.step}>4. Avoid letting your hips sag or pike up.</Text>
+              <Text style={styles.step}>5. Rest and repeat for the number of sets.</Text>
             </View>
             <View style={styles.optionsSection}>
-              <Text style={styles.optionsLabel}>Targeted reps each set:</Text>
+              <Text style={styles.optionsLabel}>Target time each set (seconds):</Text>
               <TextInput
                 style={styles.input}
                 keyboardType="numeric"
-                value={targetReps}
-                onChangeText={setTargetReps}
+                value={targetTime}
+                onChangeText={setTargetTime}
                 maxLength={3}
               />
               <Text style={styles.optionsLabel}>Number of sets:</Text>
@@ -79,10 +77,13 @@ export default function PushupStepsSheet({
               style={styles.startButton}
               onPress={() => {
                 onClose();
-                router.push('/pushup_train');
+                // Use navigation instead of router.push for navigation
+                // navigation.navigate('PlankTrain');
+                // If using router, use a valid route or fallback
+                // For now, just close the sheet
               }}
             >
-              <Text style={styles.startButtonText}>Start Pushup Training</Text>
+              <Text style={styles.startButtonText}>Start Plank Training</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeText}>Close</Text>
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
-    maxHeight: height * 0.9, // allow scrolling if needed
+    maxHeight: height * 0.9,
   },
   title: {
     fontSize: 22,
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  pushupImage: {
+  plankImage: {
     width: '100%',
     height: 140,
     marginBottom: 16,
