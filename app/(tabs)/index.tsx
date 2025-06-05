@@ -442,8 +442,6 @@ function Dashboard({ navigation }: { navigation: any }) {
             </View>
           </View>
         )}
-
-        {/* ...existing code... */}
       </View>
     </ScrollView>
   );

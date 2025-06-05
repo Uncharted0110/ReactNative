@@ -32,9 +32,9 @@ interface WorkoutTotals {
   [workoutName: string]: number;
 }
 
-const RadarChart: React.FC<RadarChartProps> = ({ 
-  email, 
-  maxValue = 100, 
+const RadarChart: React.FC<RadarChartProps> = ({
+  email,
+  maxValue = 100,
   size = 180,
   apiUrl = 'http://localhost:3000' // Default API URL
 }) => {
@@ -58,49 +58,51 @@ const RadarChart: React.FC<RadarChartProps> = ({
       tricep: 0,
     };
 
-    // Map each workout to its primary muscle group(s)
     Object.entries(workoutTotals).forEach(([workoutName, totalReps]) => {
       const lowerWorkout = workoutName.toLowerCase();
-      
-      // Chest exercises
-      if (lowerWorkout.includes('pushup') || lowerWorkout.includes('push-up') || 
-          lowerWorkout.includes('bench') || lowerWorkout.includes('chest')) {
-        muscleData.chest += totalReps;
+
+      if (lowerWorkout.includes('pushup') || lowerWorkout.includes('push-up')) {
+        muscleData.chest += totalReps * 0.7;
+        muscleData.tricep += totalReps * 0.15;
+        muscleData.bicep += totalReps * 0.1;
+        muscleData.back += totalReps * 0.05;
       }
-      
-      // Bicep exercises
+
+      if (lowerWorkout.includes('twist')) {
+        muscleData.abs += totalReps * 1.0;
+      }
+
+      if (lowerWorkout.includes('squat')) {
+        muscleData.leg += totalReps * 0.6;
+        muscleData.glutes += totalReps * 0.4;
+      }
+
+      if (lowerWorkout.includes('plank')) {
+        muscleData.abs += totalReps * 1.0;
+      }
+
+      // Other muscle-specific mappings (keep existing logic as fallback)
       if (lowerWorkout.includes('curl') || lowerWorkout.includes('bicep')) {
         muscleData.bicep += totalReps;
       }
-      
-      // Tricep exercises
-      if (lowerWorkout.includes('tricep') || lowerWorkout.includes('dip') || 
-          lowerWorkout.includes('extension')) {
+
+      if (lowerWorkout.includes('tricep') || lowerWorkout.includes('dip') || lowerWorkout.includes('extension')) {
         muscleData.tricep += totalReps;
       }
-      
-      // Back exercises
-      if (lowerWorkout.includes('pullup') || lowerWorkout.includes('pull-up') || 
-          lowerWorkout.includes('row') || lowerWorkout.includes('back')) {
+
+      if (lowerWorkout.includes('pullup') || lowerWorkout.includes('pull-up') || lowerWorkout.includes('row') || lowerWorkout.includes('back')) {
         muscleData.back += totalReps;
       }
-      
-      // Abs exercises
-      if (lowerWorkout.includes('crunch') || lowerWorkout.includes('plank') || 
-          lowerWorkout.includes('sit-up') || lowerWorkout.includes('situp') ||
-          lowerWorkout.includes('abs') || lowerWorkout.includes('twist')) {
+
+      if (lowerWorkout.includes('crunch') || lowerWorkout.includes('sit-up') || lowerWorkout.includes('situp') || lowerWorkout.includes('abs')) {
         muscleData.abs += totalReps;
       }
-      
-      // Leg exercises
-      if (lowerWorkout.includes('squat') || lowerWorkout.includes('lunge') || 
-          lowerWorkout.includes('leg') || lowerWorkout.includes('calf')) {
+
+      if (lowerWorkout.includes('lunge') || lowerWorkout.includes('leg') || lowerWorkout.includes('calf')) {
         muscleData.leg += totalReps;
       }
-      
-      // Glute exercises
-      if (lowerWorkout.includes('glute') || lowerWorkout.includes('hip') || 
-          lowerWorkout.includes('bridge')) {
+
+      if (lowerWorkout.includes('glute') || lowerWorkout.includes('hip') || lowerWorkout.includes('bridge')) {
         muscleData.glutes += totalReps;
       }
     });
@@ -108,21 +110,22 @@ const RadarChart: React.FC<RadarChartProps> = ({
     return muscleData;
   };
 
+
   // Fetch workout data from API
   useEffect(() => {
     const fetchWorkoutData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch(`${apiUrl}/api/workout-totals?email=${encodeURIComponent(email)}`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.totals) {
           const muscleData = mapWorkoutToMuscleGroup(result.totals);
           setData(muscleData);
@@ -237,7 +240,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
       const labelRadius = radius + 25;
       const x = center + Math.cos(angle) * labelRadius;
       const y = center + Math.sin(angle) * labelRadius;
-      
+
       return (
         <SvgText
           key={index}
@@ -249,7 +252,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
           textAnchor="middle"
           alignmentBaseline="middle"
         >
-          {attr.label} 
+          {attr.label}
         </SvgText>
       );
     });
@@ -260,16 +263,16 @@ const RadarChart: React.FC<RadarChartProps> = ({
 
   return (
     <View style={styles.container}>
-      
-      
+
+
       <View style={styles.chartContainer}>
         <Svg height={size} width={size}>
           {/* Grid circles */}
           {generateGridCircles()}
-          
+
           {/* Grid lines */}
           {generateGridLines()}
-          
+
           {/* Data polygon */}
           <Polygon
             points={generatePoints()}
@@ -278,7 +281,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
             stroke="#ff6b35"
             strokeWidth="2"
           />
-          
+
           {/* Data points */}
           {attributes.map((attr, index) => {
             const angle = index * angleStep - Math.PI / 2;
@@ -297,7 +300,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
               />
             );
           })}
-          
+
           {/* Labels */}
           {generateLabels()}
         </Svg>
