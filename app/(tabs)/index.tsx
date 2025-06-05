@@ -395,18 +395,17 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
 
       <TouchableOpacity onPress={() => setShowPushupSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
-          source={require('../../assets/pushup_bg.jpg')} // Replace with your image
+          source={require('../../assets/pushup_bg.jpg')}
           style={styles.imageButton}
           imageStyle={{ borderRadius: 12 }}
         >
           <LinearGradient
-            colors={['rgba(0,0,0,0.7)', 'transparent']}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.gradient}
+            colors={["rgba(0,0,0,0.95)", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.0)"]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            locations={[0, 0.5, 1]}
+            style={[styles.gradient, { position: 'absolute', left: 0, right: 0, bottom: 0, height: '60%' }]}
           />
-
-
           <View style={styles.overlay}>
             <Text style={styles.imageButtonText}>Pushups</Text>
             <Text style={styles.imageButtonDescription}>Build chest, arms, and core strength</Text>
@@ -416,10 +415,17 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
 
       <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
-          source={require('../../assets/twists_bg.png')} // Replace with your image
+          source={require('../../assets/twists_bg.png')}
           style={styles.imageButton}
           imageStyle={{ borderRadius: 12 }}
         >
+          <LinearGradient
+            colors={["rgba(0,0,0,0.95)", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.0)"]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            locations={[0, 0.5, 1]}
+            style={[styles.gradient, { position: 'absolute', left: 0, right: 0, bottom: 0, height: '60%' }]}
+          />
           <View style={styles.overlay}>
             <Text style={styles.imageButtonText}>Russian Twists</Text>
             <Text style={styles.imageButtonDescription}>Build core</Text>
@@ -429,10 +435,17 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
 
       <TouchableOpacity onPress={() => setShowSquatSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
-          source={require('../../assets/squats.jpg')} // Replace with your image
+          source={require('../../assets/squats.jpg')}
           style={styles.imageButton}
           imageStyle={{ borderRadius: 12 }}
         >
+          <LinearGradient
+            colors={["rgba(0,0,0,0.95)", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.0)"]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            locations={[0, 0.5, 1]}
+            style={[styles.gradient, { position: 'absolute', left: 0, right: 0, bottom: 0, height: '60%' }]}
+          />
           <View style={styles.overlay}>
             <Text style={styles.imageButtonText}>Squats</Text>
             <Text style={styles.imageButtonDescription}>Build booty</Text>
@@ -442,10 +455,17 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
 
       <TouchableOpacity onPress={() => setShowPlankSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
-          source={require('../../assets/plank_bg.png')} // Replace with your image
+          source={require('../../assets/plank_bg.png')}
           style={styles.imageButton}
           imageStyle={{ borderRadius: 12 }}
         >
+          <LinearGradient
+            colors={["rgba(0,0,0,0.95)", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.0)"]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            locations={[0, 0.5, 1]}
+            style={[styles.gradient, { position: 'absolute', left: 0, right: 0, bottom: 0, height: '60%' }]}
+          />
           <View style={styles.overlay}>
             <Text style={styles.imageButtonText}>Plank</Text>
             <Text style={styles.imageButtonDescription}>Build core</Text>
