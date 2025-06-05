@@ -11,6 +11,7 @@ import {
   Dimensions,
   Easing,
   Image,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -426,7 +427,7 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
         </ImageBackground>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
+      <TouchableOpacity onPress={() => setShowSquatSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
           source={require('../../assets/squats.jpg')} // Replace with your image
           style={styles.imageButton}
@@ -439,7 +440,7 @@ function WorkoutSelection({ navigation }: Readonly<{ navigation: any }>) {
         </ImageBackground>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setShowTwistsSheet(true)} style={styles.imageButtonWrapper}>
+      <TouchableOpacity onPress={() => setShowPlankSheet(true)} style={styles.imageButtonWrapper}>
         <ImageBackground
           source={require('../../assets/plank_bg.png')} // Replace with your image
           style={styles.imageButton}
