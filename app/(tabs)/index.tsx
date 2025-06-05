@@ -540,6 +540,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#152238',
   },
   headerSection: {
     flexDirection: 'row',
@@ -680,6 +681,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#ffffff',
   },
   workout: {
     fontSize: 18,
