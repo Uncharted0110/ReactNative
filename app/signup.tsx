@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -8,6 +9,9 @@ export default function SignupScreen() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
+
+      const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
+
 
     const handleSignup = async () => {
         if (!email || !username || !password || !confirmPassword) {
@@ -24,7 +28,7 @@ export default function SignupScreen() {
         }
 
         try {
-            const res = await fetch('http://192.168.1.5:3000/signup', {
+            const res = await fetch(`http://${IP_ADDR}:3000/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, username }), // send username

@@ -21,6 +21,7 @@ import { UserContext } from '../_layout';
 import PushupTrain from '../pushup_train';
 import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom sheet component
 
+import Constants from 'expo-constants';
 import TwistsTrain from '../twists_train';
 import TwistsStepsSheet from '../TwistsStepsSheet';
 
@@ -45,6 +46,9 @@ function Dashboard({ navigation }: { navigation: any }) {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState<{ date: string, summary: any[] } | null>(null);
 
+  const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
+
+
   // Stickman animation effect
   React.useEffect(() => {
     if (loading) {
@@ -66,7 +70,7 @@ function Dashboard({ navigation }: { navigation: any }) {
   const fetchWorkoutSummary = async () => {
     if (!email) return;
     try {
-      const res = await fetch(`http://192.168.185.193:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`http://${IP_ADDR}:3000/api/workout-summary?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (res.ok) {
         setTotalSessions(data.total_sessions || 0);
@@ -96,7 +100,7 @@ function Dashboard({ navigation }: { navigation: any }) {
       const dateStr = `${yyyy}-${mm}-${dd}`;
       try {
         const res = await fetch(
-          `http://192.168.185.193:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+          `http://${IP_ADDR}:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -141,7 +145,7 @@ function Dashboard({ navigation }: { navigation: any }) {
     }
     try {
       const res = await fetch(
-        `http://192.168.185.193:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
+        `http://${IP_ADDR}:3000/api/workouts?email=${encodeURIComponent(email)}&date=${dateStr}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },

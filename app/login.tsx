@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -9,6 +10,9 @@ export default function LoginScreen() {
   const router = useRouter();
   const { setEmail: setContextEmail, setUsername: setContextUsername } = useContext(UserContext);
 
+  const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
+  
+  // Ensure the server URL is correct and accessible 
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'All fields are required');
@@ -16,7 +20,7 @@ export default function LoginScreen() {
     }
   
     try {
-      const res = await fetch('http://192.168.185.193:3000/login', {
+      const res = await fetch(`http://${IP_ADDR}:3000/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
