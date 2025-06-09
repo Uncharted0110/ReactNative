@@ -29,6 +29,7 @@ import SquatStepsSheet from '../SquatStepsSheet';
 
 import Constants from 'expo-constants';
 import TwistsStepsSheet from '../TwistsStepsSheet';
+import { useRouter } from 'expo-router';
 
 // Define WorkoutSummaryItem type for type safety
 type WorkoutSummaryItem = {
@@ -61,7 +62,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
   const [overlayData, setOverlayData] = useState<{ date: string, summary: any[] } | null>(null);
 
   const IP_ADDR = Constants.expoConfig?.extra?.IP_ADDR;
-
+  const router = useRouter();
 
   // Stickman animation effect
   React.useEffect(() => {
@@ -246,139 +247,160 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
   }
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={{ flexGrow: 1, backgroundColor: '#152238' }}>
-      {/* Ensure flex: 1 on main container */}
-      <View style={[styles.container, { flex: 1 }]}>
-        {/* Header Section */}
-        <View style={styles.headerSection}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>
-              Hi, {username ?? 'User'}! 👋
-            </Text>
-            <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.workoutButton}
-            onPress={() => navigation.navigate('WorkoutSelection')}
-          >
-            <Text style={styles.workoutButtonText}>Start Workout</Text>
-          </TouchableOpacity>
-        </View>
+    <View style={{ flex: 1, backgroundColor: '#152238' }}>
+      {/* Profile icon at the top right */}
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 16, paddingTop: 36, backgroundColor: 'transparent', zIndex: 10 }}>
+        <TouchableOpacity
+          onPress={() => router.push('/profile')}
+          style={{
+            backgroundColor: 'rgba(44,62,80,0.85)',
+            borderRadius: 22,
+            padding: 2,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.18,
+            shadowRadius: 2.0,
+            elevation: 4,
+          }}
+        >
+          <MaterialCommunityIcons name="account-circle" size={40} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
-        {/* Statistics Section */}
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
-          <Text style={styles.monthTitle}>{getCurrentMonth()} 2024</Text>
-
-          {/* Summary Stats */}
-          <View style={styles.summaryRow}>
-            <View style={styles.statBox}>
-              <Text style={styles.statNumber}>{totalSessions}</Text>
-              <Text style={styles.statLabel}>Total Sessions</Text>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={{ flexGrow: 1, backgroundColor: '#152238' }}>
+        {/* Ensure flex: 1 on main container */}
+        <View style={[styles.container, { flex: 1 }]}>
+          {/* Header Section */}
+          <View style={styles.headerSection}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.greeting}>
+                Hi, {username ?? 'User'}! 👋
+              </Text>
+              <Text style={styles.subGreeting}>Ready to crush your goals?</Text>
             </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statNumber}>{activeDays}</Text>
-              <Text style={styles.statLabel}>Active Days</Text>
+            <TouchableOpacity
+              style={styles.workoutButton}
+              onPress={() => navigation.navigate('WorkoutSelection')}
+            >
+              <Text style={styles.workoutButtonText}>Start Workout</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Statistics Section */}
+          <View style={styles.statsSection}>
+            <Text style={styles.sectionTitle}>Daily Exercise Tracker</Text>
+            <Text style={styles.monthTitle}>{getCurrentMonth()} 2024</Text>
+
+            {/* Summary Stats */}
+            <View style={styles.summaryRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>{totalSessions}</Text>
+                <Text style={styles.statLabel}>Total Sessions</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>{activeDays}</Text>
+                <Text style={styles.statLabel}>Active Days</Text>
+              </View>
+            </View>
+
+            {/* Calendar Grid */}
+            <View style={styles.calendarContainer}>
+              <View style={styles.calendarGrid}>
+                {renderCalendar()}
+              </View>
             </View>
           </View>
 
-          {/* Calendar Grid */}
-          <View style={styles.calendarContainer}>
-            <View style={styles.calendarGrid}>
-              {renderCalendar()}
-            </View>
+          {/* Radar Chart Section - ADD THIS */}
+          <View style={{ backgroundColor: '#2c3e50', borderRadius: 15, padding: 16, marginTop: 20, marginBottom: 20 }}>
+            <RadarChart
+              email="adityakl1509@gmail.com"
+              apiUrl={`http://${IP_ADDR}:3000`}
+              maxValue={170}
+              size={300}
+            />
           </View>
-        </View>
 
-        {/* Radar Chart Section - ADD THIS */}
-        <View style={{ backgroundColor: '#2c3e50', borderRadius: 15, padding: 16, marginTop: 20, marginBottom: 20 }}>
-          <RadarChart
-            email="adityakl1509@gmail.com"
-            apiUrl={`http://${IP_ADDR}:3000`}
-            maxValue={170}
-            size={300}
-          />
-        </View>
-
-        {/* Overlay for workout details */}
-        {overlayVisible && (
-          <View style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.55)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 100,
-            paddingBottom: 150, // <-- optional
-          }}>
+          {/* Overlay for workout details */}
+          {overlayVisible && (
             <View style={{
-              backgroundColor: '#152238', // Changed from '#fff' to dark
-              borderRadius: 18,
-              padding: 24,
-              width: '85%',
-              maxWidth: 350,
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.55)',
+              justifyContent: 'center',
               alignItems: 'center',
-              elevation: 8,
+              zIndex: 100,
+              paddingBottom: 150, // <-- optional
             }}>
-              {overlayData && overlayData.summary.length > 0 ? (
-                overlayData.summary.map((item) => (
-                  <View key={item.workout_name + (item.total_reps ?? 0)} style={{ alignItems: 'center', marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
-                      <Image
-                        source={
-                          item.workout_name === 'pushup'
-                            ? require('../../assets/pushup.png')
-                            : item.workout_name === 'russian twists'
-                              ? require('../../assets/twists.png')
-                              : item.workout_name === 'plank'
-                                ? require('../../assets/plank.png')
-                                : require('../../assets/squat.png')
-                        }
-                        style={{
-                          width: 120,
-                          height: 70,
-                          borderRadius: 10,
-                          backgroundColor: '#152238',
-                          marginRight: 24,
-                        }}
-                        resizeMode="contain"
-                      />
-                      <Text style={{ fontSize: 15, color: '#fff' }}>
-                        {item.workout_name === 'plank'
-                          ? `- ${(item.total_reps ?? 0) * 5}s`
-                          : `X ${item.total_reps ?? 0}`}
+              <View style={{
+                backgroundColor: '#152238', // Changed from '#fff' to dark
+                borderRadius: 18,
+                padding: 24,
+                width: '85%',
+                maxWidth: 350,
+                alignItems: 'center',
+                elevation: 8,
+              }}>
+                {overlayData && overlayData.summary.length > 0 ? (
+                  overlayData.summary.map((item) => (
+                    <View key={item.workout_name + (item.total_reps ?? 0)} style={{ alignItems: 'center', marginBottom: 16 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
+                        <Image
+                          source={
+                            item.workout_name === 'pushup'
+                              ? require('../../assets/pushup.png')
+                              : item.workout_name === 'russian twists'
+                                ? require('../../assets/twists.png')
+                                : item.workout_name === 'plank'
+                                  ? require('../../assets/plank.png')
+                                  : require('../../assets/squat.png')
+                          }
+                          style={{
+                            width: 120,
+                            height: 70,
+                            borderRadius: 10,
+                            backgroundColor: '#152238',
+                            marginRight: 24,
+                          }}
+                          resizeMode="contain"
+                        />
+                        <Text style={{ fontSize: 15, color: '#fff' }}>
+                          {item.workout_name === 'plank'
+                            ? `- ${(item.total_reps ?? 0) * 5}s`
+                            : `X ${item.total_reps ?? 0}`}
+                        </Text>
+                      </View>
+
+                      <Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
+                        {(item as WorkoutSummaryItem).workout_name?.replace(/(^|\s)\S/g, (l: string) => l.toUpperCase())}
                       </Text>
                     </View>
-
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
-                      {(item as WorkoutSummaryItem).workout_name?.replace(/(^|\s)\S/g, (l: string) => l.toUpperCase())}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ fontSize: 15, color: '#bbb', marginVertical: 18 }}>
-                  No workouts found for this day.
-                </Text>
-              )}
+                  ))
+                ) : (
+                  <Text style={{ fontSize: 15, color: '#bbb', marginVertical: 18 }}>
+                    No workouts found for this day.
+                  </Text>
+                )}
 
 
-              <TouchableOpacity
-                style={{
-                  marginTop: 8,
-                  backgroundColor: '#ff6b35',
-                  borderRadius: 16,
-                  paddingHorizontal: 32,
-                  paddingVertical: 10,
-                }}
-                onPress={() => setOverlayVisible(false)}
-              >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    marginTop: 8,
+                    backgroundColor: '#ff6b35',
+                    borderRadius: 16,
+                    paddingHorizontal: 32,
+                    paddingVertical: 10,
+                  }}
+                  onPress={() => setOverlayVisible(false)}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
