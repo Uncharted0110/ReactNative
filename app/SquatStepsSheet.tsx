@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -23,6 +24,7 @@ export default function SquatStepsSheet({
   const [targetReps, setTargetReps] = useState('12');
   const [numSets, setNumSets] = useState('3');
   const [breakTime, setBreakTime] = useState('60');
+  const router = useRouter();
 
   return (
     <Modal
@@ -77,10 +79,7 @@ export default function SquatStepsSheet({
               style={styles.startButton}
               onPress={() => {
                 onClose();
-                // Use navigation instead of router.push for navigation
-                // navigation.navigate('SquatTrain');
-                // If using router, use a valid route or fallback
-                // For now, just close the sheet
+                router.push('/squats_train');
               }}
             >
               <Text style={styles.startButtonText}>Start Squat Training</Text>

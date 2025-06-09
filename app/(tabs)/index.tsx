@@ -274,7 +274,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
           <View style={styles.summaryRow}>
             <View style={styles.statBox}>
               <Text style={styles.statNumber}>{totalSessions}</Text>
-              <Text style={styles.statLabel}>Total Workouts</Text>
+              <Text style={styles.statLabel}>Total Sessions</Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statNumber}>{activeDays}</Text>
