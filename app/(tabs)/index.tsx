@@ -28,8 +28,8 @@ import PushupStepsSheet from '../PushupStepsSheet'; // Import the new bottom she
 import SquatStepsSheet from '../SquatStepsSheet';
 
 import Constants from 'expo-constants';
-import TwistsStepsSheet from '../TwistsStepsSheet';
 import { useRouter } from 'expo-router';
+import TwistsStepsSheet from '../TwistsStepsSheet';
 
 // Define WorkoutSummaryItem type for type safety
 type WorkoutSummaryItem = {
@@ -249,7 +249,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
   return (
     <View style={{ flex: 1, backgroundColor: '#152238' }}>
       {/* Profile icon at the top right */}
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 16, paddingTop: 36, backgroundColor: 'transparent', zIndex: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 24, paddingTop: 50, backgroundColor: 'transparent', zIndex: 10 }}>
         <TouchableOpacity
           onPress={() => router.push('/profile')}
           style={{
@@ -260,7 +260,7 @@ function Dashboard({ navigation }: Readonly<{ navigation: any }>) {
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.18,
             shadowRadius: 2.0,
-            elevation: 4,
+            elevation: 2,
           }}
         >
           <MaterialCommunityIcons name="account-circle" size={40} color="#fff" />
