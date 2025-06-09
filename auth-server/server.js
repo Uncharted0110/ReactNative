@@ -125,7 +125,6 @@ app.get('/api/workout-summary', async (req, res) => {
   }
 });
 
-// Add this endpoint to your existing server code
 
 app.get('/api/workout-totals', async (req, res) => {
   try {
@@ -170,6 +169,56 @@ app.get('/api/workout-totals', async (req, res) => {
   } catch (err) {
     console.error('Workout totals error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update username endpoint
+app.put('/api/update-username', async (req, res) => {
+  try {
+    const { email, username } = req.body;
+    
+    if (!email || !username) {
+      return res.status(400).json({ message: 'Email and username are required' });
+    }
+    
+    if (username.length > 10) {
+      return res.status(400).json({ message: 'Username must be at most 10 characters' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.username = username;
+    await user.save();
+
+    res.json({ message: 'Username updated successfully', username: user.username });
+  } catch (error) {
+    console.error('Update username error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete account endpoint
+app.delete('/api/delete-account', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const result = await User.deleteOne({ email });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
